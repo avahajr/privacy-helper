@@ -13,12 +13,12 @@
         <div id='policy-input' class="dropdown">
             <button id="dropdown-menu-btn" class="btn btn-lg btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                Dropdown button
+                Choose...
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                {% for policy in dropdown_options %}
+                <li><a class="dropdown-item" href="#">{{ policy }}</a></li>
+                {% endfor %}
             </ul>
         </div>
     </div>
