@@ -1,2 +1,1 @@
-# tNc-prototype
 # privacy-helper
