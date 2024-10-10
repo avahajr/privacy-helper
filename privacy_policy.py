@@ -1,6 +1,9 @@
 import os
 
+
 class PrivacyPolicy:
+    """Processes the privacy policy of a company."""
+
     def __init__(self, company_name):
         self.path = os.path.join(os.getcwd(), "privacy_policies", company_name.lower() + ".txt")
         self.policy_text = self.get_policy_text()

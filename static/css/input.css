@@ -4,3 +4,8 @@
 #dropdown-menu-btn {
     min-width: 5em;
 }
+#selected-policy-text {
+    max-height: 200px;
+    overflow-y: auto;
+    position: relative;
+}

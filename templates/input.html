@@ -11,15 +11,32 @@
 <div class="row justify-content-center">
     <div class="col-auto">
         <div id='policy-input' class="dropdown">
-            <button id="dropdown-menu-btn" class="btn btn-lg btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button id="dropdown-menu-btn" class="btn btn-lg btn-primary dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Choose...
             </button>
             <ul class="dropdown-menu">
                 {% for policy in dropdown_options %}
-                <li><a class="dropdown-item" href="#">{{ policy }}</a></li>
+                <li>
+                    <div class="dropdown-item">{{ policy }}</div>
+                </li>
                 {% endfor %}
             </ul>
+        </div>
+
+        <div id='selected-policy' class="card fluid text-bg-light mb-3" >
+            <div id="selected-policy-filename" class="card-header"></div>
+            <div class="card-body">
+                <h5 class="card-title">Light card title</h5>
+                <p id='selected-policy-text' class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                    card's content.</p>
+            </div>
+        </div>
+
+
+        <div>
+            <button id="submit-btn" class="btn btn-md btn-success">Analyze tradeoffs</button>
         </div>
     </div>
 </div>

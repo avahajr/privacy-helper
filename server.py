@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('input.html', dropdown_options=["Option 1", "Option 2", "Option 3"])
+    return render_template('input.html', dropdown_options=["apple", "google", "proton", "reddit", "openai"])
 
 
 @app.route('/api/data', methods=['GET'])
