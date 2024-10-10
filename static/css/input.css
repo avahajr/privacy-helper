@@ -1,11 +1,26 @@
 #heading-row {
     margin-bottom: 2.5em;
 }
+#policy-input {
+    text-align: center;
+}
+
 #dropdown-menu-btn {
+    display: inline-block;
     min-width: 5em;
+}
+#selected-policy {
+    display: flex;
+}
+
+#policy-row {
+    margin-top:2.5em
 }
 #selected-policy-text {
     max-height: 200px;
     overflow-y: auto;
     position: relative;
+}
+#policy-goal-input {
+    text-align: left;
 }

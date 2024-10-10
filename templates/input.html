@@ -24,20 +24,45 @@
                 {% endfor %}
             </ul>
         </div>
-
-        <div id='selected-policy' class="card fluid text-bg-light mb-3" >
-            <div id="selected-policy-filename" class="card-header"></div>
-            <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p id='selected-policy-text' class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                    card's content.</p>
+    </div>
+    <div class="row" id="policy-row">
+        <div class="col-4">
+            <h3 class="h3">My privacy goals</h3>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                    Default checkbox
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                <label class="form-check-label" for="flexCheckChecked">
+                    Checked checkbox
+                </label>
+            </div>
+            <div class="input">
+                <label for="policy-goal-input"></label><input id="policy-goal-input" type="text" class="form-control"
+                                                              placeholder="Describe your policy goals...">
             </div>
         </div>
+        <div class="col-8">
+            <div id='selected-policy' class="card mb-3">
+                <div id="selected-policy-filename" class="card-header"></div>
+                <div class="card-body">
+                    <h5 id="selected-policy-title" class="card-title">Light card title</h5>
+                    <p id='selected-policy-text' class="card-text">Some quick example text to build on the card
+                        title
+                        and
+                        make up the bulk of the
+                        card's content.</p>
+                </div>
+                <div class="card-footer">
+                    <button id="submit-btn" class="btn btn-fluid btn-success">Analyze tradeoffs</button>
+                </div>
+            </div>
 
-
-        <div>
-            <button id="submit-btn" class="btn btn-md btn-success">Analyze tradeoffs</button>
         </div>
     </div>
 </div>
+
 {% endblock %}

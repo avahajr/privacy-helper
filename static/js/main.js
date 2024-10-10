@@ -7,9 +7,10 @@ $(document).ready(function () {
         $('#dropdown-menu-btn').text(selectedPolicy);
 
         // Show the selected policy
-        $("#selected-policy-filename").text(`${selectedPolicy}.txt`);
+        $("#selected-policy-filename").text(`${selectedPolicy.toLowerCase()}.txt`);
+        $("#selected-policy-title").text(`${selectedPolicy}'s Privacy Policy`);
         $.ajax({
-            url: `static/policies/${selectedPolicy}.txt`,
+            url: `static/policies/${selectedPolicy.toLowerCase()}.txt`,
             method: 'GET',
             success: function (data) {
                 $("#selected-policy-text").text(data);
@@ -19,6 +20,6 @@ $(document).ready(function () {
             }
         });
         $("#selected-policy").show();
-
     });
+
 });
