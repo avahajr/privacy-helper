@@ -1,6 +1,7 @@
 #heading-row {
     margin-bottom: 2.5em;
 }
+
 #policy-input {
     text-align: center;
 }
@@ -9,18 +10,46 @@
     display: inline-block;
     min-width: 5em;
 }
+
 #selected-policy {
     display: flex;
 }
 
 #policy-row {
-    margin-top:2.5em
+    margin-top: 2.5em
 }
+
 #selected-policy-text {
     max-height: 200px;
     overflow-y: auto;
     position: relative;
 }
-#policy-goal-input {
-    text-align: left;
+
+
+.goal-container {
+    /*padding: 10px;*/
+    min-width: 50vw;
+    display: flex;
+    justify-content: space-between;
+}
+#goal-list {
+    margin: 1.5em 0;
+}
+
+.remove-goal, .info-icon {
+    color: var(--bs-gray-500);
+    cursor: pointer;
+}
+
+.info-icon {
+    margin-right: 0.5em;
+}
+
+.remove-goal:hover {
+    color: var(--bs-danger);
+    cursor: pointer;
+}
+.info-icon:hover {
+    color: var(--bs-primary);
+    cursor: pointer;
 }
