@@ -10,16 +10,19 @@
 </div>
 <div class="row justify-content-center">
     <div class="col-8">
-        <h4 class="h4">My privacy goals</h4>
+        <div id='goal-header' class="d-flex"><h4 class="h4">My privacy goals</h4><i class="bi bi-magic"></i></div>
+
         <div class="d-flex justify-content-center">
             <ul id="goal-list" class="list-group">
                 {% for goal in goals %}
                 <li data-id="{{loop.index0}}" class="goal-container list-group-item">
-                    <div><i class="info-icon bi bi-question-circle"></i><span class="goal-text">{{ goal.goal }}</span></div>
+                    <div><i class="info-icon bi bi-question-circle"></i><span class="goal-text">{{ goal.goal }}</span>
+                    </div>
                     <i class="bi bi-trash remove-goal"></i></li>
                 {% endfor %}
                 <li class="goal-container list-group-item input-group">
-                    <input aria-label="enter new goal" id="new-goal" class="form-control" type="text" placeholder="type new goal here...">
+                    <input aria-label="enter new goal" id="new-goal" class="form-control" type="text"
+                           placeholder="type new goal here...">
                     <button class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
                 </li>
             </ul>

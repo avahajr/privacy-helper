@@ -32,13 +32,22 @@
     display: flex;
     justify-content: space-between;
 }
+
 #goal-list {
     margin: 1.5em 0;
 }
 
 .remove-goal, .info-icon {
-    color: var(--bs-gray-500);
     cursor: pointer;
+}
+
+i {
+    color: var(--bs-gray-500);
+}
+
+#goal-header {
+    display: flex;
+    gap: .5em;
 }
 
 .info-icon {
@@ -49,6 +58,7 @@
     color: var(--bs-danger);
     cursor: pointer;
 }
+
 .info-icon:hover {
     color: var(--bs-primary);
     cursor: pointer;

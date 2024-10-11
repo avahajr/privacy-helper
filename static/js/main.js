@@ -82,6 +82,18 @@ function refreshUI() {
             <button class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
         </li>
     `);
+            newGoalElement.on("keypress", function (e) {
+                if (e.key === "Enter") {
+                    const newGoal = $("#new-goal").val();
+                    addGoal(newGoal, "");
+                    $("#new-goal").val("");
+                }
+            });
+            newGoalElement.find("button").on("click", function () {
+                const newGoal = $("#new-goal").val();
+                addGoal(newGoal, "");
+                $("#new-goal").focus()
+            });
             $("#goal-list").append(newGoalElement);
 
             // attach event listeners
@@ -102,13 +114,17 @@ function refreshUI() {
 }
 
 function addGoal(goal, explanation) {
+    if (goal === "") {
+        return;
+    }
     $.ajax({
         url: '/add/goal',
         method: 'POST',
-        data: {
+        contentType: 'application/json',
+        data: JSON.stringify({
             goal: goal,
             explanation: explanation
-        },
+        }),
         success: function (data) {
             console.log(data);
             refreshUI()
@@ -118,6 +134,8 @@ function addGoal(goal, explanation) {
             console.log("Error adding goal.");
         }
     });
+    $("#new-goal").val("");
+
 }
 
 function removeGoal(goalId) {
@@ -131,6 +149,7 @@ function removeGoal(goalId) {
         success: function (data) {
             console.log(data);
             refreshUI();
+            $("#new-goal").focus();
             return data
         },
         error: function () {
