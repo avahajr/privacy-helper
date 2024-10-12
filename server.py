@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 selected_policy = "Apple"
 dropdown_options = ["Apple", "Google", "Proton", "Reddit", "OpenAI"]
 goals = [

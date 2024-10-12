@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $("#selected-policy").hide();
-    console.log('main.js loaded')
+    console.log('input.js loaded')
     $("#analyze-risks").on("click", function () {
         console.log("Analyzing risks...");
         window.location.href = '/results';
