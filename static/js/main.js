@@ -141,6 +141,7 @@ function getAndLoadPolicy() {
             console.log(data);
             let selectedPolicy = data['policy'];
             $("#dropdown-menu").text(`${selectedPolicy.toLowerCase()}.txt`);
+            $("#selected-policy-title").text(`${selectedPolicy}'s Privacy Policy`);
             $.ajax({
                 url: `static/policies/${selectedPolicy.toLowerCase()}.txt`,
                 method: 'GET',
