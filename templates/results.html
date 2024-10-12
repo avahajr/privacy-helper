@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex mx-auto spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+</div>
+<div class="row">
+    <div class="col-6">
+        <div id='selected-policy' class="card mb-3">
+            <div class="card-header dropdown">
+                <div>
+                    {{selected_policy|lower}}.txt
+                </div>
+
+            </div>
+            <div class="card-body">
+                <h5 id="selected-policy-title" class="card-title">{{selected_policy}}'s Privacy Policy</h5>
+                <p id='selected-policy-text' class="card-text">Some quick example text to build on the card
+                    title and make up the bulk of the card's content.</p>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-6">
+
+    </div>
+</div>
+{% endblock %}

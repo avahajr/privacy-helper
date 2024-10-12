@@ -1,41 +1,16 @@
 $(document).ready(function () {
     $("#selected-policy").hide();
     console.log('main.js loaded')
-
-    let goals = $.ajax({
-        url: '/goals',
-        method: 'GET',
-        success: function (data) {
-            console.log(data);
-            return data;
-        },
-        error: function () {
-            console.log("Error loading goals.");
-            return [];
-        }
+    $("#analyze-risks").on("click", function () {
+        console.log("Analyzing risks...");
+        window.location.href = '/results';
     });
-
-    refreshUI(goals);
-    // Set default policy to Apple
-    let defaultPolicy = "Apple";
-    // $("#dropdown-menu").text(`${defaultPolicy}.txt`);
-    $("#selected-policy-title").text(`${defaultPolicy}'s Privacy Policy`);
-    $("#selected-policy-text").text("Loading...");
-    $.ajax({
-        url: `static/policies/${defaultPolicy.toLowerCase()}.txt`,
-        method: 'GET',
-        success: function (data) {
-            $("#selected-policy-text").text(data);
-        },
-        error: function () {
-            $("#selected-policy-text").text("Error loading policy content.");
-        }
-    });
-    $("#selected-policy").show();
-
+    refreshUI();
+    getAndLoadPolicy();
 
     $('.dropdown-item').on('click', function () {
         let selectedPolicy = $(this).text();
+        updateSelectedPolicy(selectedPolicy);
         console.log(selectedPolicy);
         // Show the selected policy
         $("#dropdown-menu").text(`${selectedPolicy.toLowerCase()}.txt`);
@@ -52,7 +27,6 @@ $(document).ready(function () {
         });
         $("#selected-policy").show();
     });
-
 
 });
 
@@ -154,6 +128,52 @@ function removeGoal(goalId) {
         },
         error: function () {
             console.log("Error removing goal.");
+            return {};
+        }
+    });
+}
+
+function getAndLoadPolicy() {
+    $.ajax({
+        url: '/policy',
+        method: 'GET',
+        success: function (data) {
+            console.log(data);
+            let selectedPolicy = data['policy'];
+            $("#dropdown-menu").text(`${selectedPolicy.toLowerCase()}.txt`);
+            $.ajax({
+                url: `static/policies/${selectedPolicy.toLowerCase()}.txt`,
+                method: 'GET',
+                success: function (data) {
+                    $("#selected-policy-text").text(data);
+                },
+                error: function () {
+                    $("#selected-policy-text").text("Error loading policy content.");
+                }
+            });
+            $("#selected-policy").show();
+        },
+        error: function () {
+            console.log("Error loading policy.");
+            return {};
+        }
+    });
+}
+function updateSelectedPolicy(selectedPolicy) {
+    $.ajax({
+        url: '/policy',
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            policy: selectedPolicy
+        }),
+        success: function (data) {
+            console.log(data);
+            getAndLoadPolicy();
+            return data;
+        },
+        error: function () {
+            console.log("Error updating policy.");
             return {};
         }
     });
