@@ -7,6 +7,7 @@ $(document).ready(function () {
     });
     refreshUI();
     getAndLoadPolicy();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
     $('.dropdown-item').on('click', function () {
         let selectedPolicy = $(this).text();
@@ -42,20 +43,28 @@ function refreshUI() {
             console.log("Goals:", goals);
             goals.forEach((goal, i) => {
                 const goalElement = $(`
-            <li data-id="${i}" class="goal-container list-group-item">
-                <div><i class="info-icon bi bi-question-circle"></i><span class="goal-text">${goal.goal}</span></div>
-                <i class="bi bi-trash remove-goal"></i>
-            </li>
-        `);
+                    <li data-id="${i}" class="goal-container list-group-item">
+                        <div>
+                            <i class="info-icon bi bi-question-circle" data-bs-toggle="modal" data-bs-target="#goalExplanationModal" data-explanation="${goal.explanation}"></i>
+                            <span class="goal-text">${goal.goal}</span>
+                        </div>
+                        <i class="bi bi-trash remove-goal"></i>
+                    </li>
+                `);
                 $("#goal-list").append(goalElement);
+                goalElement.find(".info-icon").on("click", function () {
+                    const explanation = goal.explanation.replace(/\*\*(.*?)\*\*/g, '<div><strong>$1</strong></div>');
+                    $("#goalExplanationModalLabel").text(goal.goal);
+                    $("#goalExplanationText").html(explanation);
+                });
             });
 
             const newGoalElement = $(`
-        <li class="goal-container list-group-item input-group">
-            <input aria-label="enter new goal" id="new-goal" class="form-control" type="text" placeholder="type new goal here...">
-            <button class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
-        </li>
-    `);
+                <li class="goal-container list-group-item input-group">
+                    <input aria-label="enter new goal" id="new-goal" class="form-control" type="text" placeholder="type new goal here...">
+                    <button class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
+                </li>
+            `);
             newGoalElement.on("keypress", function (e) {
                 if (e.key === "Enter") {
                     const newGoal = $("#new-goal").val();
@@ -75,8 +84,8 @@ function refreshUI() {
                 const goalId = $(this).parent().data("id");
                 console.log("Goal ID:", goalId);
                 removeGoal(goalId);
-
             });
+
             return data;
         },
         error: function () {
@@ -86,7 +95,6 @@ function refreshUI() {
         }
     });
 }
-
 function addGoal(goal, explanation) {
     if (goal === "") {
         return;

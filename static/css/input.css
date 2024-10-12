@@ -59,7 +59,7 @@ i {
     cursor: pointer;
 }
 
-.info-icon:hover {
+.info-icon:hover, #goal-suggest:hover {
     color: var(--bs-primary);
     cursor: pointer;
 }
