@@ -38,6 +38,15 @@ class PolicyReader:
         self.client = OpenAI(api_key=SECRET_KEY)
         self.policy = PrivacyPolicy(company_name)
 
+    def prompt(self, user_message, model="gpt-4o", policy_blind=True):
+        return self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": self.system_message},
+                {"role": "user", "content": user_message},
+            ]
+        )
+
     def suggest_questions(self):
         question_suggestions = self.client.chat.completions.create(
             model="gpt-4o",
@@ -116,7 +125,7 @@ def main(company_name=None, question_to_answer=None, outfile=None):
                         f"quotations from the policy where you got that information. Wrap the quote(s) in "
                         "quotation marks. Sample answer:\nThe policy states that <company_name> collects data on "
                         "users.\n\"We collect data on users.\""},
-            {"role": "assistant", "content": reader.policy.policy_text},
+            {"role": "assistant", "content": reader.policy.text},
         ]
     )
 

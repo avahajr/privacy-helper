@@ -6,7 +6,7 @@ class PrivacyPolicy:
 
     def __init__(self, company_name):
         self.path = os.path.join(os.getcwd(), "privacy_policies", company_name.lower() + ".txt")
-        self.policy_text = self.get_policy_text()
+        self.text = self.get_policy_text()
 
     def get_policy_text(self):
         with open(self.path) as f:
