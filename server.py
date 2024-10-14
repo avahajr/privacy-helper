@@ -7,8 +7,6 @@ from prototype import split_into_sentences, split_quotes_by_ellipses
 from thefuzz import process
 import re
 
-# from prototype import PolicyReader
-
 app = Flask(__name__, template_folder='templates')
 selected_policy = "Apple"
 dropdown_options = ["Apple", "Google", "Proton", "Reddit", "OpenAI"]
