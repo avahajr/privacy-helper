@@ -1,11 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="d-flex mx-auto spinner-border" role="status">
-    <span class="visually-hidden">Loading...</span>
-</div>
-<div class="row">
-    <div class="col-6">
+<link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}"><div class="row">
+    <div class="col-4">
         <div id='selected-policy' class="card mb-3">
             <div class="card-header dropdown">
                 <div>
@@ -15,14 +12,17 @@
             </div>
             <div class="card-body">
                 <h5 id="selected-policy-title" class="card-title">{{selected_policy}}'s Privacy Policy</h5>
-                <p id='selected-policy-text' class="card-text">Some quick example text to build on the card
-                    title and make up the bulk of the card's content.</p>
+                <p id='selected-policy-text' class="card-text"></p>
             </div>
         </div>
-
     </div>
-    <div class="col-6">
-
+    <div class="col-1"></div>
+    <div class="col-7">
+        <div id='gpt-results-spinner' class="d-flex mx-auto spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <ul class="list-group" id="goal-list">
+        </ul>
     </div>
 </div>
 <script src="{{url_for('static', filename='js/results.js')}}"></script>

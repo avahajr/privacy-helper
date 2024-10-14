@@ -3,6 +3,9 @@ from openai import OpenAI
 
 from openai_secrets import SECRET_KEY
 from privacy_policy import PrivacyPolicy
+from prototype import split_into_sentences, split_quotes_by_ellipses
+from thefuzz import process
+import re
 
 # from prototype import PolicyReader
 
@@ -107,8 +110,42 @@ class PolicyAnalysisPrompt(GPTPrompt):
 
         return prompts
 
-    def process_response(self, responses: list[str]):
-        pass
+    def process_responses(self, responses: list[str]):
+        quotes_for_goals = []
+
+        for response in responses:
+            quotes = self.extract_quotes(response)
+            summary = self.extract_summary(response)
+            quotes_to_sentences = self.find_matches(quotes)
+            quotes_for_goals.append({"summary": summary, "quotes": quotes_to_sentences})
+        return quotes_for_goals
+
+    def extract_quotes(self, response):
+        return re.findall(r'\"(.*?)\"', response)
+
+    def extract_summary(self, response: str) -> str:
+        # Remove all quoted text
+        summary = re.sub(r'\".*?\"', '', response)
+        # Strip leading and trailing whitespace
+        return summary.strip()
+
+    def find_matches(self, quotes):
+        policy_sentences = split_into_sentences(self.policy_text)
+        split_quotes = split_quotes_by_ellipses(quotes)
+        # number_of_matches = 0
+        quotes_to_sentence_matches = {}
+
+        for j, quote in enumerate(split_quotes, start=1):
+
+            match, score = process.extractOne(quote, policy_sentences)
+            if score > 85:
+                # number_of_matches += 1
+                sentences_with_match = re.findall(r'[^.!?]*' + re.escape(match) + r'[^.!?]*[.!?]',
+                                                  self.policy_text)
+                for sentence in sentences_with_match:
+                    quotes_to_sentence_matches[quote] = sentence
+
+        return quotes_to_sentence_matches
 
 
 @app.route('/')
@@ -149,7 +186,7 @@ def policy():
         selected_policy = data['policy']
         return jsonify({"policy": selected_policy})
 
-    return jsonify({"policy": selected_policy})
+    return jsonify({"policy": selected_policy, "text": PrivacyPolicy(selected_policy).text})
 
 
 @app.route("/gpt/<action>", methods=["GET"])
@@ -165,7 +202,25 @@ def ask_gpt(action):
     elif action == "analyze-policy":
         prompter = PolicyAnalysisPrompt(selected_policy)
         prompt = prompter.construct_prompt(goals)
+        responses = prompter.prompt_gpt(prompt)
+        summary_and_quotes = prompter.process_responses(responses)
 
+        zipped_results = []
+        for goal, summary_and_quotes in zip(goals, summary_and_quotes):
+            summary = summary_and_quotes['summary']
+            quotes = summary_and_quotes['quotes']
+            fuzzy_matches = list(quotes.values())
+            gpt_quotes = list(quotes.keys())
+
+            zipped_results.append({
+                "goal": goal["goal"],
+                "explanation": goal["explanation"],
+                "search_summary": summary,
+                "fuzzy_matches": fuzzy_matches,
+                "gpt_quotes": gpt_quotes
+            })
+
+        return jsonify(zipped_results)
 
 
 if __name__ == '__main__':

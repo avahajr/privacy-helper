@@ -5,7 +5,7 @@ $(document).ready(function () {
         console.log("Analyzing risks...");
         window.location.href = '/results';
     });
-    refreshUI();
+    refreshGoals();
     getAndLoadPolicy();
     $('[data-bs-toggle="tooltip"]').tooltip();
 
@@ -35,12 +35,12 @@ $(document).ready(function () {
             method: 'GET',
             success: function (data) {
                 console.log(data);
-                refreshUI()
+                refreshGoals()
             },
         });
     });
 
-    function refreshUI() {
+    function refreshGoals() {
         let goals;
         $.ajax({
             url: '/goals',
@@ -117,7 +117,7 @@ $(document).ready(function () {
             }),
             success: function (data) {
                 // console.log(data);
-                refreshUI()
+                refreshGoals()
                 return data;
             },
             error: function () {
@@ -138,7 +138,7 @@ $(document).ready(function () {
             }),
             success: function (data) {
                 // console.log(data);
-                refreshUI();
+                refreshGoals();
                 $("#new-goal").focus();
                 return data
             },
