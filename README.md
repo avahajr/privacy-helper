@@ -1,10 +1,7 @@
 # privacy-helper quickstart
 Hi Vincent! Thanks for testing my app. Here's a quick setup guide:
 
-```bash
-git clone https://github.com/avahajr/privacy-helper.git
-cd privacy-helper 
-```
+After cloning...
 create & activate virtual environment for python 
 (if you use pip)
 ```bash
