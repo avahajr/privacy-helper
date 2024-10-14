@@ -1,2 +1,3 @@
-openai_secrets.py
+#openai_secrets.py
 __pycache__/
+venv/
