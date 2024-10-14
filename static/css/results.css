@@ -1,0 +1,37 @@
+.goal-container {
+    min-width: auto;
+    display: block;
+}
+
+#selected-policy-text {
+    max-height: 500px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.quote-holder {
+    display: flex;
+    cursor: pointer;
+}
+
+.quote-holder .quote-icon {
+    padding: 0 10px 10px 10px;
+    font-size: x-large;
+}
+
+.quote-icon:hover {
+    color: var(--bs-primary);
+    cursor: pointer;
+}
+
+.highlight {
+    background-color: yellow;
+}
+.quote {
+    color:var(--bs-gray-700);
+    font-size: 15px;
+}
+.list-group {
+    max-height: 500px; /* Set a fixed height */
+    overflow-y: auto;  /* Enable vertical scrolling */
+}
