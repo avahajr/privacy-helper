@@ -1,5 +1,8 @@
+from platform import system
+
 from flask import Flask, request, jsonify, render_template
 from openai import OpenAI
+from rapidfuzz.process import extract
 
 from openai_secrets import SECRET_KEY
 from privacy_policy import PrivacyPolicy
@@ -45,7 +48,9 @@ class GPTPrompt:
         # Split user prompts into separate request groups
         user_prompts = [message for message in prompts if message['role'] == 'user']
         for user_prompt in user_prompts:
-            request_group = [system_message, user_prompt]
+            request_group = [user_prompt]
+            if system_message:
+                request_group.append(system_message)
             if assistant_message:
                 request_group.append(assistant_message)
             requests.append(request_group)
@@ -84,6 +89,17 @@ class GoalSuggestingPrompt(GPTPrompt):
         return new_goals
 
 
+def extract_summary(response: str) -> str:
+    # Remove all quoted text
+    summary = re.sub(r'\".*?\"', '', response)
+    # Strip leading and trailing whitespace
+    return summary.strip()
+
+
+def extract_quotes(response):
+    return re.findall(r'\"(.*?)\"', response)
+
+
 class PolicyAnalysisPrompt(GPTPrompt):
     def __init__(self, company_name: str, model: str = "gpt-4o-mini"):
         super().__init__(model)
@@ -99,8 +115,8 @@ class PolicyAnalysisPrompt(GPTPrompt):
         for goal in curr_goals:
             prompt = {"role": "user",
                       'content': f"Does the privacy policy of {self.selected_policy} fulfill the following goal? \n{goal['goal']}\n"
-                                 "Result format should be: brief (less than 3 sentences) answer, followed by quotes from the privacy policy that support the answer."
-                                 "Sample answer for goal \"Do not collect my personal data\":\nThe policy states that <company_name> collects data on users.\n\"We collect data on users.\""}
+                                 "Answer should be extremely brief (2 or fewer sentences)."
+                                 "Sample answer for goal \"Do not collect my personal data\":\nThe policy states that <company_name> collects data on users."}
             prompts.append(prompt)
 
         assistant_message = {"role": "assistant", "content": self.policy_text}
@@ -108,42 +124,64 @@ class PolicyAnalysisPrompt(GPTPrompt):
 
         return prompts
 
-    def process_responses(self, responses: list[str]):
-        quotes_for_goals = []
+    def cite_sources(self, responses: list[str]):
+        """Given a list of summaries, cite sources."""
+        system_message = {"role": "system",
+                          "content": "You are trying to help a user understand the privacy policy of a service they want to use, and align it with their preexisting goals. Provide minimal answers."}
+        prompts = [system_message, {"role": "assistant", "content": self.policy_text}]
+        for summary in responses:
+            prompt = {"role": "user",
+                      "content": f"Using only the provided privacy policy, find relevant quotes to support the following assertion:\n{summary}\n"""
+                                 "If there are multiple quotes, separate them by a \\n character."}
+            prompts.append(prompt)
 
-        for response in responses:
-            quotes = self.extract_quotes(response)
-            summary = self.extract_summary(response)
-            quotes_to_sentences = self.find_matches(quotes)
-            quotes_for_goals.append({"summary": summary, "quotes": quotes_to_sentences})
-        return quotes_for_goals
+        return prompts
 
-    def extract_quotes(self, response):
-        return re.findall(r'\"(.*?)\"', response)
+    def link_outputs(self, curr_goals: list[dict[str, str]], summaries: list[str],
+                     quote_responses: list[str]) -> list[dict[str, str | int]]:
+        goals_to_info = []
+        quotes = [extract_quotes(response) for response in quote_responses]
+        for i in range(len(curr_goals)):
+            quote_to_sentence_matches = self.find_matches(quotes[i])
+            goals_to_info.append({
+                "goal": curr_goals[i]["goal"],
+                "explanation": curr_goals[i]["explanation"],
+                "gpt_summary": extract_summary(summaries[i]),
+                "quotes": quote_to_sentence_matches,
+                "evaluation": None
+            })
+        return goals_to_info
 
-    def extract_summary(self, response: str) -> str:
-        # Remove all quoted text
-        summary = re.sub(r'\".*?\"', '', response)
-        # Strip leading and trailing whitespace
-        return summary.strip()
+    def get_evaluate_goal_achievement_prompts(self, linked_outputs: list[dict[str, str]]) -> list[dict[str, str]]:
+        prompts = []
+
+        for goal_info in linked_outputs:
+            prompt = {"role": "user",
+                      'content': f"I want to make sure that the privacy policy of {self.selected_policy} fulfills the following goal: \n{goal_info['goal']}\n"
+                                 f"I did some research and found the following information:\n{goal_info['gpt_summary']}."
+                                 f"\nBased on this statement alone, evaluate whether the policy fulfills the goal. You must answer on a scale of 1-3, "
+                                 f"1 being the goal is completely accomplished and 3 being the goal is not at all accomplished. Provide no explanation, only an integer."
+                      }
+            prompts.append(prompt)
+
+        return prompts
 
     def find_matches(self, quotes):
         policy_sentences = split_into_sentences(self.policy_text)
         split_quotes = split_quotes_by_ellipses(quotes)
         # number_of_matches = 0
-        quotes_to_sentence_matches = {}
+        quote_to_sentence_matches = []
 
         for j, quote in enumerate(split_quotes, start=1):
-
             match, score = process.extractOne(quote, policy_sentences)
             if score > 85:
                 # number_of_matches += 1
                 sentences_with_match = re.findall(r'[^.!?]*' + re.escape(match) + r'[^.!?]*[.!?]',
                                                   self.policy_text)
                 for sentence in sentences_with_match:
-                    quotes_to_sentence_matches[quote] = sentence
+                    quote_to_sentence_matches.append({"gpt_quote": quote, "policy_quote": sentence})
 
-        return quotes_to_sentence_matches
+        return quote_to_sentence_matches
 
 
 @app.route('/')
@@ -199,26 +237,25 @@ def ask_gpt(action):
 
     elif action == "analyze-policy":
         prompter = PolicyAnalysisPrompt(selected_policy)
-        prompt = prompter.construct_prompt(goals)
-        responses = prompter.prompt_gpt(prompt)
-        summary_and_quotes = prompter.process_responses(responses)
+        summary_prompts = prompter.construct_prompt(goals)
+        summary_responses = prompter.prompt_gpt(summary_prompts)
 
-        zipped_results = []
-        for goal, summary_and_quotes in zip(goals, summary_and_quotes):
-            summary = summary_and_quotes['summary']
-            quotes = summary_and_quotes['quotes']
-            fuzzy_matches = list(quotes.values())
-            gpt_quotes = list(quotes.keys())
+        quote_prompts = prompter.cite_sources(summary_responses)
+        print(quote_prompts)
+        quote_responses = prompter.prompt_gpt(quote_prompts)
 
-            zipped_results.append({
-                "goal": goal["goal"],
-                "explanation": goal["explanation"],
-                "search_summary": summary,
-                "fuzzy_matches": fuzzy_matches,
-                "gpt_quotes": gpt_quotes
-            })
+        linked_outputs = prompter.link_outputs(goals, summary_responses, quote_responses)
+        evaluate_achievement_prompts = prompter.get_evaluate_goal_achievement_prompts(linked_outputs)
+        goal_evaluations = [response.strip() for response in prompter.prompt_gpt(evaluate_achievement_prompts)]
 
-        return jsonify(zipped_results)
+        for i, goal_info in enumerate(linked_outputs):
+            goal_info["evaluation"] = int(goal_evaluations[i])
+
+        goals_by_achievement = [[], [], []]
+        for goal_info in linked_outputs:
+            goals_by_achievement[goal_info["evaluation"]].append(goal_info)
+
+        return jsonify(goals_by_achievement)
 
 
 if __name__ == '__main__':

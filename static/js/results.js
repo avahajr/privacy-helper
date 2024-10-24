@@ -17,30 +17,33 @@ $(document).ready(function () {
         method: 'GET',
         success: function (data) {
             console.log(data);
-            $("#gpt-results-spinner").remove()
-            data.forEach((goal, i) => {
-                const goalElement = $(`
+            $("#gpt-results-spinner").remove();
+            data.forEach((goals, achievementLevel) => {
+                let achievementLevelText;
+                goals.forEach((goal, i) => {
+                    const goalElement = $(`
                 <li data-id="${i}" class="goal-container list-group-item">
                     <div>
+                        <span class="goal-achievement-level">${achievementLevel}</span>
                         <h4 class="goal-text">${goal.goal}</h4>
-                        <p>${goal.search_summary}</p>
+                        <p>${goal.gpt_summary}</p>
                     </div>
                 </li>
                 `);
 
-                goal.fuzzy_matches.forEach((match) => {
-                    const quoteHolder = $(`
+                    goal.quotes.forEach((quote) => {
+                        const quoteHolder = $(`
                     <div class="quote-holder">
                         <i class="quote-icon bi bi-quote"></i>
-                        <p class="quote">${match}</p>
+                        <p class="quote">${quote.policy_quote}</p>
                     </div>
                     `);
-                    goalElement.append(quoteHolder);
+                        goalElement.append(quoteHolder);
+                    });
+
+                    $("#goal-list").append(goalElement);
                 });
-
-                $("#goal-list").append(goalElement);
             });
-
             // Add click event listener to quote icons and quotes
             $(".quote-holder, .quote-holder .blockquote").on("click", function () {
                 const quoteText = $(this).find("p").text();
