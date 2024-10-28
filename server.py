@@ -79,11 +79,11 @@ def analyze_policy():
     goal_evaluations = get_rating(prompter, linked_outputs)
 
     for goal_info, evaluation in zip(linked_outputs, goal_evaluations):
-        goal_info["evaluation"] = evaluation
+        goal_info["rating"] = evaluation
 
     goals_by_achievement = [[], [], []]
     for goal_info in linked_outputs:
-        goals_by_achievement[goal_info["evaluation"]].append(goal_info)
+        goals_by_achievement[goal_info["rating"]].append(goal_info)
 
     return jsonify(goals_by_achievement)
 
@@ -110,13 +110,12 @@ def get_goal_quotes():
 def get_goal_ratings():
     global goals
     prompter = PolicyAnalysisPrompt(selected_policy)
-    linked_outputs = link_outputs(prompter, goals, [goal["gpt_summary"] for goal in goals], [goal["quotes"] for goal in goals])
-    goal_evaluations = get_rating(prompter, linked_outputs)
+    goal_evaluations = get_rating(prompter, goals)
 
-    for goal_info, evaluation in zip(linked_outputs, goal_evaluations):
-        goal_info["evaluation"] = evaluation
+    for i, goal in enumerate(goals):
+        goal["rating"] = goal_evaluations[i]
 
-    return jsonify(linked_outputs)
+    return jsonify(goals)
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

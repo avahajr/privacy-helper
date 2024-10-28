@@ -11,59 +11,28 @@ $(document).ready(function () {
         },
     });
 
-    // Fetch and display the GPT analysis results
+    let successes = $("<ul class='list-group'></ul>");
+    let warnings = $("<ul class='list-group'></ul>");
+    let failures = $("<ul class='list-group'></ul>");
+    let dashboard = $();
     $.ajax({
-        url: "/gpt/analyze-policy",
+        url:"/gpt/analyze-policy/rating",
         method: 'GET',
         success: function (data) {
             console.log(data);
-            $("#gpt-results-spinner").remove();
-            data.forEach((goals, achievementLevel) => {
-                let achievementLevelText;
-
-                switch (achievementLevel) {
+            data.forEach((goal) => {
+                switch (goal.rating) {
                     case 0:
-                        achievementLevelText = "";
+                        failures.append(`<li class="list-group-item">${goal.goal}</li>`);
                         break;
                     case 1:
-                        achievementLevelText = 'warning';
+                        warnings.append(`<li class="list-group-item">${goal.goal}</li>`);
                         break;
                     case 2:
-                        achievementLevelText = 'danger';
+                        successes.append(`<li class="list-group-item">${goal.goal}</li>`);
+                        break;
                 }
-
-                goals.forEach((goal, i) => {
-                    const summaryList = $('<ul></ul>');
-                    const summaries = goal.gpt_summary.replace(/^- /, '').split(/\n-\s+/).filter(summary => summary.trim() !== '');
-                    const formattedSummaries = summaries.map(summary => {
-                        return summary.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    });
-
-                    formattedSummaries.forEach(summary => {
-                        summaryList.append(`<li>${summary}</li>`);
-                    });
-
-                    const goalElement = $(`
-                        <li data-id="${i}" class="goal-container list-group-item ${achievementLevelText !== '' ? 'list-group-item-' + achievementLevelText : ''}">
-                            <div>
-                                <span class="goal-achievement-level">${achievementLevel}</span>
-                                <h4 class="goal-text">${goal.goal}</h4>
-                                ${summaryList.prop('outerHTML')}
-                            </div>
-                        </li>
-                    `);
-
-                    $("#goal-list").append(goalElement);
-                });
-            });
-
-            // Add click event listener to quote icons and quotes
-            $(".quote-holder, .quote-holder .blockquote").on("click", function () {
-                const quoteText = $(this).find("p").text();
-                highlightText(quoteText);
-            });
-        }
-    });
+    })
 
     // Function to highlight text in the policy and scroll to it
     function highlightText(quoteText) {

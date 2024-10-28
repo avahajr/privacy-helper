@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}"><div class="row">
-    <div class="col-4">
+<link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}">
+<div class="row">
+    <div class="col-5">
         <div id='selected-policy' class="card mb-3">
             <div class="card-header dropdown">
                 <div>
@@ -17,12 +18,46 @@
 
         </div>
         <br/>
-        <a href=".."><button class="btn btn-outline-dark">Back to goal selection</button></a>
+        <a href="..">
+            <button class="btn btn-outline-dark">Back to goal selection</button>
+        </a>
     </div>
     <div class="col-1"></div>
-    <div class="col-7">
-        <h3>Goal Breakdown</h3>
+    <div class="col-6">
+        <h3>Analysis of {{selected_policy}}'s Privacy Policy</h3>
         <p>Click on a quote to see it cited in the privacy policy.</p>
+        <br>
+        <div id='summary-row' class="row">
+            <div class="col-4">
+                <div class="card card-danger">
+                    <div class="card-body">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <div id='goals-not-met' class="h3">0</div>
+                        <div>Goals not met</div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div id='goals-partially-met' class="h3">0</div>
+                        <div>Goals partially met</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <div id='goals-completely-met' class="h3">0</div>
+                        <div>Goals completely met</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
         <div id='gpt-results-spinner' class="d-flex mx-auto spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>

@@ -35,3 +35,54 @@
     max-height: 500px; /* Set a fixed height */
     overflow-y: auto;  /* Enable vertical scrolling */
 }
+
+#summary-row .card-body i {
+    font-size: 2rem;
+}
+
+
+#summary-row .card-body {
+    display: block;
+    /*justify-content: space-between;*/
+}
+
+#summary-row .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    gap: 2em;
+}
+
+.card-danger {
+    background-color: var(--bs-danger-bg-subtle);
+    border-color: var(--bs-danger-border-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+.card-danger i {
+    color: var(--bs-danger);
+}
+
+.card-warning {
+    background-color: var(--bs-warning-bg-subtle);
+    border-color: var(--bs-warning-border-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+.card-warning i {
+    color: var(--bs-warning);
+}
+
+.card-success{
+    background-color: var(--bs-success-bg-subtle);
+    border-color: var(--bs-success-border-subtle);
+    color: var(--bs-success-text-emphasis);
+}
+.card-success i {
+    color: var(--bs-success);
+}
+
+.card .h3 {
+    color: var(--bs-body-color);
+    font-weight: bold;
+    padding: .15em .25em 0 0
+}

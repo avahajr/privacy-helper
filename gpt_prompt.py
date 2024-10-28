@@ -7,20 +7,19 @@ import re
 
 from typing import TypedDict, Optional
 
+
 class GoalInfo(TypedDict):
     goal: str
     explanation: str
     gpt_summary: Optional[str]
     quotes: Optional[list[dict[str, str]]]
-    evaluation: Optional[int]
+    rating: Optional[int]
+
 
 class GPTPrompt:
     def __init__(self, model: str = "gpt-4o-mini"):
         self.model = model
         self.client = OpenAI(api_key=SECRET_KEY)
-
-    def construct_prompt(self, goals: list[dict[str, str]]) -> list[dict[str, str]]:
-        raise NotImplementedError("Subclasses should implement this method")
 
     def prompt_gpt(self, prompts: list[dict[str, str]]) -> list[str]:
         system_message = None
@@ -94,18 +93,17 @@ class PolicyAnalysisPrompt(GPTPrompt):
         super().__init__(model)
         self.selected_policy = company_name
         self.policy_text = PrivacyPolicy(company_name).text
+        self.system_message = {"role": "system",
+                               "content": "You are trying to help a user understand the privacy policy of a service they want to use, and align it with their preexisting goals. "
+                                          "Read the policy with skepticism, focusing on how technicalities could negatively impact the user's privacy goal. Provide minimal answers."}
 
-    def construct_prompt(self, curr_goals: list[dict[str, str]]) -> list[dict[str, str]]:
-        prompts = []
-        system_message = {"role": "system",
-                          "content": "You are trying to help a user understand the privacy policy of a service they want to use, and align it with their preexisting goals. Provide minimal answers."}
-        prompts.append(system_message)
+    def get_summary_prompt(self, curr_goals: list[dict[str, str]]) -> list[dict[str, str]]:
+        prompts = [self.system_message]
 
         for goal in curr_goals:
             prompt = {"role": "user",
                       'content': f"To what extent does the privacy policy of {self.selected_policy} accomplish the following goal? \n{goal['goal']}\n"
-                                 "Read the policy with skepticism, focusing on how technicalities could negatively impact the user's privacy goal."
-                                 "Answers should made up of extremely brief bullet points. Sort bullet points by relevance to the goal."
+                                 "Provide a brief summary. Answers should made up of extremely brief bullet points. Sort bullet points by relevance to the goal."
                                  "Sample answer for goal \"Do not collect my personal data\":\nThe policy states that <company_name> collects data on users."}
             prompts.append(prompt)
 
@@ -116,12 +114,10 @@ class PolicyAnalysisPrompt(GPTPrompt):
 
     def cite_sources(self, responses: list[str]):
         """Given a list of summaries, cite sources."""
-        system_message = {"role": "system",
-                          "content": "You are trying to help a user understand the privacy policy of a service they want to use, and align it with their preexisting goals. Provide minimal answers."}
-        prompts = [system_message, {"role": "assistant", "content": self.policy_text}]
+        prompts = [self.system_message, {"role": "assistant", "content": self.policy_text}]
         for summary in responses:
             prompt = {"role": "user",
-                      "content": f"Using only the provided privacy policy, find relevant quotes to support the following assertion:\n{summary}\n"""
+                      "content": f"Using only the provided privacy policy, find relevant quotes to support the following summary:\n{summary}\n"""
                                  "If there are multiple quotes, separate them by a \n character."}
             prompts.append(prompt)
 
@@ -142,13 +138,11 @@ class PolicyAnalysisPrompt(GPTPrompt):
         return goals_to_info
 
     def get_evaluate_goal_achievement_prompts(self, linked_outputs: list[dict[str, str]]) -> list[dict[str, str]]:
-        prompts = []
-
+        prompts = [{"role": "assistant", "content": self.policy_text}]
         for goal_info in linked_outputs:
             prompt = {"role": "user",
                       'content': f"I want to make sure that the privacy policy of {self.selected_policy} fulfills the following goal: \n{goal_info['goal']}\n"
-                                 f"I did some research and found the following information:\n{goal_info['gpt_summary']}."
-                                 f"\nBased on this statement alone, evaluate whether the policy fulfills the goal. You must answer on a scale of 0-2, "
+                                 f"\nEvaluate whether the policy fulfills the goal. You must answer on a scale of 0-2, "
                                  f"0 being the goal is completely accomplished and 2 being the goal is not at all accomplished. Provide no explanation, only an integer."
                       }
             prompts.append(prompt)
@@ -172,9 +166,11 @@ class PolicyAnalysisPrompt(GPTPrompt):
 
         return quote_to_sentence_matches
 
+
 def get_summaries(prompter, goals):
-    summary_prompts = prompter.construct_prompt(goals)
+    summary_prompts = prompter.get_summary_prompt(goals)
     return prompter.prompt_gpt(summary_prompts)
+
 
 def get_quotes(prompter, summary_responses):
     quote_prompts = prompter.cite_sources(summary_responses)
@@ -191,11 +187,12 @@ def get_quotes(prompter, summary_responses):
 
     return extracted_quotes
 
-def get_rating(prompter, goals:list[GoalInfo]):
+
+def get_rating(prompter, goals: list[GoalInfo]):
     evaluate_achievement_prompts = prompter.get_evaluate_goal_achievement_prompts(goals)
     goal_evaluations = [int(response.strip()) for response in prompter.prompt_gpt(evaluate_achievement_prompts)]
     return goal_evaluations
 
+
 def link_outputs(prompter, goals, summary_responses, extracted_quotes):
     return prompter.link_outputs(goals, summary_responses, extracted_quotes)
-
