@@ -4,6 +4,36 @@
 <link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}">
 <div class="row">
     <div class="col-5">
+        <h3>My Privacy Goals</h3>
+        <div>
+            <ul id="privacy-goals-list" class="list-group d-flex justify-content-between">
+                <!-- Goals will be populated here -->
+            </ul>
+        </div>
+        <br/>
+        <a href="..">
+            <button class="btn btn-outline-dark">Back to policy selection</button>
+        </a>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-6">
+        <h3>Goal Breakdown for {{selected_policy}}'s Privacy Policy</h3>
+<!--        <p>Click on a quote to see it cited in the privacy policy.</p>-->
+
+        <div id="percent-compliance"><span>0</span>% of your goals were completely met.</div>
+
+        <div id='summary-row' class="row">
+        </div>
+
+
+
+    </div>
+
+    <ul class="list-group" id="goal-list">
+    </ul>
+</div>
+<div class="row">
+    <div class="col-5">
         <div id='selected-policy' class="card mb-3">
             <div class="card-header dropdown">
                 <div>
@@ -17,26 +47,54 @@
             </div>
 
         </div>
-        <br/>
-        <a href="..">
-            <button class="btn btn-outline-dark">Back to goal selection</button>
-        </a>
     </div>
     <div class="col-1"></div>
-    <div class="col-6">
-        <h3>Analysis of {{selected_policy}}'s Privacy Policy</h3>
-        <p>Click on a quote to see it cited in the privacy policy.</p>
-
-        <div id='summary-row' class="row">
-        </div>
-        <div id="percent-compliance"><span>0</span>% of your goals were completely met.</div>
-
-        <div id='gpt-results-spinner' class="d-flex mx-auto spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <ul class="list-group" id="goal-list">
-        </ul>
-    </div>
+    <div class="col-6"> <h3>Unmet Goals</h3>
+        <div id="not-met-goal-carousel" class="carousel slide">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="0"
+                        class="active"></button>
+                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="2"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Don't sell my data</h5>
+                            <p>Text here</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Don't sell my data</h5>
+                            <p>Text here</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Don't sell my data</h5>
+                            <p>Text here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#not-met-goal-carousel"
+                    data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#not-met-goal-carousel"
+                    data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div></div>
 </div>
+
 <script src="{{url_for('static', filename='js/results.js')}}"></script>
 {% endblock %}

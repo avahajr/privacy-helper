@@ -95,16 +95,24 @@ class PolicyAnalysisPrompt(GPTPrompt):
         self.policy_text = PrivacyPolicy(company_name).text
         self.system_message = {"role": "system",
                                "content": "You are trying to help a user understand the privacy policy of a service they want to use, and align it with their preexisting goals. "
-                                          "Read the policy with skepticism, focusing on how technicalities could negatively impact the user's privacy goal. Provide minimal answers."}
+                                          "Read the policy with moderate skepticism, focusing on how technicalities could negatively impact the user's privacy goal. Provide minimal answers."}
 
     def get_summary_prompt(self, curr_goals: list[dict[str, str]]) -> list[dict[str, str]]:
         prompts = [self.system_message]
 
         for goal in curr_goals:
+            num_paragraphs_in_summary = None
+            match goal['rating']:
+                case 0:
+                    num_paragraphs_in_summary = 4
+                case 1:
+                    num_paragraphs_in_summary = 3
+                case 2:
+                    num_paragraphs_in_summary = 1
             prompt = {"role": "user",
                       'content': f"To what extent does the privacy policy of {self.selected_policy} accomplish the following goal? \n{goal['goal']}\n"
-                                 "Provide a brief summary. Answers should made up of extremely brief bullet points. Sort bullet points by relevance to the goal."
-                                 "Sample answer for goal \"Do not collect my personal data\":\nThe policy states that <company_name> collects data on users."}
+                                 f"Provide a {num_paragraphs_in_summary}-paragraph summary, with no more than 2 sentences in a paragraph."
+                                 "Sample answer for goal \"Do not collect my personal data\":\nThe policy states that <company_name> does not collect data on users."}
             prompts.append(prompt)
 
         assistant_message = {"role": "assistant", "content": self.policy_text}

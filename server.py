@@ -33,6 +33,17 @@ def add_goal():
     goals.append({"goal": data['goal'], "explanation": data['explanation']})
     return jsonify(goals)
 
+@app.route('/update/goal', methods=['PUT'])
+def update_goal():
+    data = request.get_json()
+    goal_id = data['goalId']
+    new_goal = data['newGoal']
+
+    if 0 <= goal_id < len(goals):
+        goals[goal_id]['goal'] = new_goal
+        return jsonify(goals[goal_id]), 200
+    else:
+        return jsonify({"error": "Invalid goal ID"}), 400
 
 @app.route('/remove/goal', methods=['DELETE'])
 def delete_goal():

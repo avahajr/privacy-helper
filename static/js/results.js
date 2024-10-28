@@ -1,7 +1,14 @@
 $(document).ready(function () {
     console.log('results.js loaded');
     initPlaceholders();
-    // Fetch and display the selected policy text
+    $.ajax({
+        url: "/goals",
+        method: 'GET',
+        success: function (data) {
+            console.log(data);
+            populatePrivacyGoals(data);
+        },
+    });
     $.ajax({
         url: "/policy",
         method: 'GET',
@@ -39,23 +46,28 @@ $(document).ready(function () {
                         break;
                 }
             });
+            fillDashboardPlaceholders(count_failure, count_warning, count_success);
 
-            fillPlaceholders();
+            $(".quote-holder, .quote-holder .blockquote").on("click", function () {
+                const quoteText = $(this).find("p").text();
+                highlightText(quoteText);
+            });
 
-            $("#goals-completely-met").empty().append($(`<div class='bold h3'>${count_success}</div>`));
-            $("#goals-partially-met").empty().append($(`<div class='bold h3'>${count_warning}</div>`));
-            $("#goals-not-met").empty().append($(`<div class='bold h3'>${count_failure}</div>`));
-
-
-            $("#percent-compliance span").text(`${Math.round((count_success / data.length) * 100)}`);
         },
     });
 
+    function constructGoalListItem(goal) {
+        const summary_paragraphs = goal.gpt_summary.split('\n');
 
-    function generateGoalList(goals, listElement) {
-        goals.forEach((goal) => {
-            listElement.append(`<li class="list-group-item">${goal}</li>`);
-        });
+        return $(`
+        <li class="goal-container list-group-item">
+            <div>
+                <span class="goal-achievement-level">${goal.rating}</span>
+                <h4 class="goal-text">${goal.goal}</h4>
+                ${summary_paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')}
+            </div>
+        </li>
+    `);
     }
 
     function initPlaceholders() {
@@ -82,25 +94,44 @@ $(document).ready(function () {
         }
         $("#percent-compliance").html(`
         <div class="placeholder-glow">
+            <span class="placeholder col-1"></span>
+        </div>
+        <div class="placeholder-glow">
             <span class="placeholder col-5"></span>
         </div>
     `);
     }
 
-function fillPlaceholders() {
-    const themes = ["not-met", "partially-met", "completely-met"];
-    const icons = ["bi-x-circle-fill", "bi-exclamation-triangle-fill", "bi-check-circle-fill"];
-    const texts = ["Goals not met", "Goals partially met", "Goals completely met"];
+    function fillDashboardPlaceholders(count_failure, count_warning, count_success) {
+        const themes = ["not-met", "partially-met", "completely-met"];
+        const icons = ["bi-x-circle-fill", "bi-exclamation-triangle-fill", "bi-check-circle-fill"];
+        const texts = ["Goals not met", "Goals partially met", "Goals completely met"];
 
-    themes.forEach((theme, index) => {
-        $(`#goals-${theme}`).parent().find('i').removeClass('placeholder').addClass(icons[index]);
-        $(`#goals-${theme}`).parent().find('.placeholder-glow').remove();
-        $(`#goals-${theme}`).parent().append(`<div>${texts[index]}</div>`);
-    });
+        themes.forEach((theme, index) => {
+            const goalDashboard = $(`#goals-${theme}`)
+            goalDashboard.parent().find('i').removeClass('placeholder').addClass(icons[index]);
+            goalDashboard.parent().find('.placeholder-glow').remove();
+            goalDashboard.parent().append(`<div>${texts[index]}</div>`);
+        });
 
-    // Fill percent compliance placeholder
-    $("#percent-compliance").html(`<span>0</span>% of your goals were completely met.`);
-}
+        let percent_compliance = Math.round((count_success / (count_warning + count_failure + count_success)) * 100);
+        let reaction = "Ruh roh!"
+
+        if (percent_compliance >= 50 && percent_compliance < 75) {
+            reaction = "Not too shabby!"
+        } else if (percent_compliance >= 75) {
+            reaction = "Nice!"
+        }
+
+        $("#percent-compliance").html(`<strong>${reaction}</strong> <div><span>${percent_compliance}</span>% of your goals were completely met.</div>`);
+
+        $("#goals-completely-met").empty().append($(`<div class='bold h3'>${count_success}</div>`));
+        $("#goals-partially-met").empty().append($(`<div class='bold h3'>${count_warning}</div>`));
+        $("#goals-not-met").empty().append($(`<div class='bold h3'>${count_failure}</div>`));
+
+        $("#percent-compliance span").text(`${percent_compliance}`);
+    }
+
     // Function to highlight text in the policy and scroll to it
     function highlightText(quoteText) {
         const policyTextElement = $("#selected-policy-text");
@@ -115,4 +146,63 @@ function fillPlaceholders() {
             policyTextElement.scrollTop(highlightedElement.position().top + policyTextElement.scrollTop());
         }
     }
+
+    function populatePrivacyGoals(goals) {
+        const $privacyGoalsList = $("#privacy-goals-list");
+        $privacyGoalsList.empty(); // Clear any existing goals
+
+        goals.forEach((goal, i) => {
+            const goalItem = $(`
+                <li data-id="${i}" class="list-group-item d-flex justify-content-between">
+                    <div class="goal-text">${goal.goal}</div>
+                    <i class="bi bi-pencil-square"></i>
+                </li>
+            `);
+            $privacyGoalsList.append(goalItem);
+        });
+    }
+
+    // Attach event listener for pencil icon
+    $("#privacy-goals-list").on('click', '.bi-pencil-square', function () {
+        const $goalItem = $(this).closest('li');
+        const $goalText = $goalItem.find('.goal-text');
+        const goalId = $goalItem.data('id');
+        const originalText = $goalText.text();
+
+        // Replace goal text with input field
+        $goalText.html(`<input type="text" class="form-control" value="${originalText}" />`);
+        const $input = $goalText.find('input');
+
+        // Focus on the input field and place cursor at the end
+        $input.focus();
+        $input[0].setSelectionRange($input.val().length, $input.val().length);
+
+        // Handle input field events
+        $input.on('blur keydown', function (e) {
+            if (e.type === 'blur' || (e.type === 'keydown' && e.key === 'Enter')) {
+                const newText = $input.val();
+                if (newText !== originalText) {
+                    // Update goal via AJAX
+                    $.ajax({
+                        url: '/update/goal',
+                        method: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify({goalId: goalId, newGoal: newText}),
+                        success: function (data) {
+                            // Update the goal text with the new value
+                            $goalText.text(newText);
+                        },
+                        error: function () {
+                            // Revert to original text on error
+                            $goalText.text(originalText);
+                            console.log("Error updating goal.");
+                        }
+                    });
+                }
+                else {
+                    $goalText.text(originalText);
+                }
+            }
+        });
+    });
 });
