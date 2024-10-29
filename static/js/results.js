@@ -1,64 +1,8 @@
 $(document).ready(function () {
-    console.log('results.js loaded');
-    initPlaceholders();
-    $.ajax({
-        url: "/goals",
-        method: 'GET',
-        success: function (data) {
-            console.log(data);
-            populatePrivacyGoals(data);
-        },
-    });
-    $.ajax({
-        url: "/policy",
-        method: 'GET',
-        success: function (data) {
-            console.log(data);
-            $("#selected-policy-text").text(data.text);
-        },
-    });
-
-    let successes = $("<ul class='list-group'></ul>");
-    let warnings = $("<ul class='list-group'></ul>");
-    let failures = $("<ul class='list-group'></ul>");
-
-    $.ajax({
-        url: "/gpt/analyze-policy/rating",
-        method: 'GET',
-        success: function (data) {
-            console.log(data);
-            let count_success = 0;
-            let count_warning = 0;
-            let count_failure = 0;
-            data.forEach((goal) => {
-                switch (goal.rating) {
-                    case 0:
-                        count_failure++;
-                        failures.append(`<li class="list-group-item">${goal.goal}</li>`);
-                        break;
-                    case 1:
-                        count_warning++;
-                        warnings.append(`<li class="list-group-item">${goal.goal}</li>`);
-                        break;
-                    case 2:
-                        count_success++;
-                        successes.append(`<li class="list-group-item">${goal.goal}</li>`);
-                        break;
-                }
-            });
-            fillDashboardPlaceholders(count_failure, count_warning, count_success);
-
-            $(".quote-holder, .quote-holder .blockquote").on("click", function () {
-                const quoteText = $(this).find("p").text();
-                highlightText(quoteText);
-            });
-
-        },
-    });
+    rerollUI();
 
     function constructGoalListItem(goal) {
         const summary_paragraphs = goal.gpt_summary.split('\n');
-
         return $(`
         <li class="goal-container list-group-item">
             <div>
@@ -155,11 +99,16 @@ $(document).ready(function () {
             const goalItem = $(`
                 <li data-id="${i}" class="list-group-item d-flex justify-content-between">
                     <div class="goal-text">${goal.goal}</div>
-                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-pencil-square" title="edit goal"></i>
                 </li>
             `);
             $privacyGoalsList.append(goalItem);
         });
+        $privacyGoalsList.append($(`<li class="list-group-item input-group d-flex justify-content-between">
+            <input aria-label="enter new goal" id="new-goal" class="form-control" type="text"
+                   placeholder="type new goal here...">
+            <button class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
+        </li>`))
     }
 
     // Attach event listener for pencil icon
@@ -168,6 +117,11 @@ $(document).ready(function () {
         const $goalText = $goalItem.find('.goal-text');
         const goalId = $goalItem.data('id');
         const originalText = $goalText.text();
+
+        // Check if input field already exists
+        if ($goalText.find('input').length > 0) {
+            return;
+        }
 
         // Replace goal text with input field
         $goalText.html(`<input type="text" class="form-control" value="${originalText}" />`);
@@ -198,11 +152,66 @@ $(document).ready(function () {
                             console.log("Error updating goal.");
                         }
                     });
-                }
-                else {
+                } else {
                     $goalText.text(originalText);
                 }
             }
         });
+
     });
+
+    function rerollUI() {
+        console.log('results.js loaded');
+        initPlaceholders();
+        $.ajax({
+            url: "/goals", method: 'GET', success: function (data) {
+                console.log(data);
+                populatePrivacyGoals(data);
+            },
+        });
+        $.ajax({
+            url: "/policy", method: 'GET', success: function (data) {
+                console.log(data);
+                $("#selected-policy-text").text(data.text);
+            },
+        });
+
+        let successes = $("<ul class='list-group'></ul>");
+        let warnings = $("<ul class='list-group'></ul>");
+        let failures = $("<ul class='list-group'></ul>");
+
+        $.ajax({
+            url: "/gpt/analyze-policy/rating", method: 'GET', success: function (data) {
+                console.log(data);
+                let count_success = 0;
+                let count_warning = 0;
+                let count_failure = 0;
+                data.forEach((goal) => {
+                    switch (goal.rating) {
+                        case 0:
+                            count_failure++;
+                            failures.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            break;
+                        case 1:
+                            count_warning++;
+                            warnings.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            break;
+                        case 2:
+                            count_success++;
+                            successes.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            break;
+                    }
+                });
+                fillDashboardPlaceholders(count_failure, count_warning, count_success);
+                populatePrivacyGoals(data)
+            }
+        });
+
+        $(".quote-holder, .quote-holder .blockquote").on("click", function () {
+            const quoteText = $(this).find("p").text();
+            highlightText(quoteText);
+        });
+
+    }
+
 });

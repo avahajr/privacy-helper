@@ -4,36 +4,12 @@
 <link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}">
 <div class="row">
     <div class="col-5">
-        <h3>My Privacy Goals</h3>
-        <div>
-            <ul id="privacy-goals-list" class="list-group d-flex justify-content-between">
-                <!-- Goals will be populated here -->
-            </ul>
-        </div>
-        <br/>
-        <a href="..">
-            <button class="btn btn-outline-dark">Back to policy selection</button>
+        <a class="link-dark" href="..">
+            <i class="bi bi-arrow-left"></i>
+            Back to policy selection
         </a>
-    </div>
-    <div class="col-1"></div>
-    <div class="col-6">
-        <h3>Goal Breakdown for {{selected_policy}}'s Privacy Policy</h3>
-<!--        <p>Click on a quote to see it cited in the privacy policy.</p>-->
-
-        <div id="percent-compliance"><span>0</span>% of your goals were completely met.</div>
-
-        <div id='summary-row' class="row">
-        </div>
-
-
-
-    </div>
-
-    <ul class="list-group" id="goal-list">
-    </ul>
-</div>
-<div class="row">
-    <div class="col-5">
+        <div class="h-10"></div>
+        <br/>
         <div id='selected-policy' class="card mb-3">
             <div class="card-header dropdown">
                 <div>
@@ -47,54 +23,60 @@
             </div>
 
         </div>
+
     </div>
     <div class="col-1"></div>
-    <div class="col-6"> <h3>Unmet Goals</h3>
-        <div id="not-met-goal-carousel" class="carousel slide">
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="0"
-                        class="active"></button>
-                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="1"></button>
-                <button type="button" data-bs-target="#not-met-goal-carousel" data-bs-slide-to="2"></button>
+    <div class="col-6">
+        <div id="breakdown">
+            <div class="goal-breakdown-header-row">
+                <h3>Goal Breakdown</h3>
+                <button class="btn btn-sm btn-outline-dark">Edit goals</button>
             </div>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Don't sell my data</h5>
-                            <p>Text here</p>
-                        </div>
+
+            <div id="percent-compliance"><span>0</span>% of your goals were completely met.</div>
+
+            <div id='summary-row' class="row">
+            </div>
+        </div>
+        <div id="unmet-goals"><h3>Unmet Goals</h3>
+            <div class="card goal-danger">
+                <div class="card-body">
+                    <div class="goal-header-row">
+                        <i class="bi h5 bi-x text-danger"></i>
+                        <h5 class="goal-header">Don't sell my data</h5>
                     </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Don't sell my data</h5>
-                            <p>Text here</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Don't sell my data</h5>
-                            <p>Text here</p>
-                        </div>
-                    </div>
+                    <p>In today's digital age, privacy has become a paramount concern for individuals and organizations
+                        alike. The increasing amount of personal data being collected and processed necessitates
+                        stringent
+                        measures to protect this information from misuse and unauthorized access.</p>
+                    <p>Privacy policies play a crucial role in outlining how organizations handle personal data. These
+                        policies provide transparency and build trust with users by clearly stating the types of data
+                        collected, the purposes for which it is used, and the measures taken to safeguard it.</p>
+                    <p>However, merely having a privacy policy is not enough. Organizations must also ensure that they
+                        adhere to the principles outlined in their policies. This includes implementing robust security
+                        measures, regularly reviewing and updating policies, and providing training to employees on data
+                        protection practices.</p>
+                    <p>Furthermore, individuals should be proactive in understanding their privacy rights and the
+                        policies
+                        of the organizations they interact with. By being informed, they can make better decisions about
+                        sharing their personal information and take steps to protect their privacy.</p>
+                    <p>Ultimately, the goal is to create a digital environment where privacy is respected and protected,
+                        fostering trust and confidence in the use of technology and digital services.</p>
                 </div>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#not-met-goal-carousel"
-                    data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#not-met-goal-carousel"
-                    data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div></div>
+        </div>
+
+    </div>
+
 </div>
 
-<script src="{{url_for('static', filename='js/results.js')}}"></script>
-{% endblock %}
+<ul class="list-group" id="goal-list">
+</ul>
+</div>
+<div class="row">
+    <div class="col-6"></div>
+    <div class="col-6">
+    </div>
+
+    <script src="{{url_for('static', filename='js/results.js')}}"></script>
+    {% endblock %}

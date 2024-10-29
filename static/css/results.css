@@ -9,6 +9,14 @@
     position: relative;
 }
 
+#selected-policy {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 5em;
+    z-index: 1000; /* Ensure it stays above other content */
+    margin-top: 1em;
+}
+
 .quote-holder {
     display: flex;
     cursor: pointer;
@@ -24,16 +32,23 @@
     cursor: pointer;
 }
 
+.bi-pencil-square:hover {
+    color: var(--bs-primary);
+    cursor: pointer;
+}
+
 .highlight {
     background-color: yellow;
 }
+
 .quote {
-    color:var(--bs-gray-700);
+    color: var(--bs-gray-700);
     font-size: 15px;
 }
+
 .list-group {
     max-height: 500px; /* Set a fixed height */
-    overflow-y: auto;  /* Enable vertical scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 #summary-row {
@@ -50,17 +65,29 @@
     display: block;
 }
 
-#summary-row .header-row {
+.goal-header-row {
+    display: flex;
+    align-items: center;
+    gap: .25em;
+}
+
+.goal-breakdown-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
+
+#breakdown {
+    margin-bottom: 3em;
+}
+
 
 .card-not-met {
     background-color: var(--bs-danger-bg-subtle);
     border-color: var(--bs-danger-border-subtle);
     color: var(--bs-danger-text-emphasis);
 }
+
 .card-not-met i {
     color: var(--bs-danger);
 }
@@ -70,15 +97,17 @@
     border-color: var(--bs-warning-border-subtle);
     color: var(--bs-warning-text-emphasis);
 }
+
 .card-partially-met i {
     color: var(--bs-warning);
 }
 
-.card-completely-met{
+.card-completely-met {
     background-color: var(--bs-success-bg-subtle);
     border-color: var(--bs-success-border-subtle);
     color: var(--bs-success-text-emphasis);
 }
+
 .card-completely-met i {
     color: var(--bs-success);
 }
@@ -87,6 +116,11 @@
     color: var(--bs-body-color);
     padding: .15em .25em 0 0
 }
+
 .bold {
     font-weight: bold;
+}
+
+.card.goal-danger {
+    border: var(--bs-card-border-width) solid var(--bs-danger-border-subtle);
 }
