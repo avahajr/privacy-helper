@@ -1,6 +1,6 @@
 $(document).ready(function () {
     rerollUI();
-
+    $("#reroll").click(function () { rerollUI()});
     function constructGoalListItem(goal) {
         const summary_paragraphs = goal.gpt_summary.split('\n');
         return $(`
@@ -187,7 +187,7 @@ $(document).ready(function () {
     });
 
     function rerollUI() {
-        console.log('results.js loaded');
+        $("#summary-row").empty();
         initPlaceholders();
         $.ajax({
             url: "/goals", method: 'GET', success: function (data) {
