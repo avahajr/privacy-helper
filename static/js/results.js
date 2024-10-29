@@ -118,6 +118,15 @@ $(document).ready(function () {
         </li>`))
     }
 
+    // Function to calculate the width of the text
+    function getTextWidth(text, font) {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        context.font = font;
+        const metrics = context.measureText(text);
+        return metrics.width;
+    }
+
     // Attach event listener for pencil icon
     $("#privacy-goals-list").on('click', '.bi-pencil-square', function () {
         const $goalItem = $(this).closest('li');
@@ -134,12 +143,17 @@ $(document).ready(function () {
         $goalText.html(`<input type="text" class="form-control" value="${originalText}" />`);
         const $input = $goalText.find('input');
 
+        // Set the width of the input field based on the text length
+        const font = $input.css("font");
+        const textWidth = getTextWidth(originalText, font);
+        $input.width(textWidth + 20); // Add some padding
+
         // Focus on the input field and place cursor at the end
         $input.focus();
         $input[0].setSelectionRange($input.val().length, $input.val().length);
 
         // Handle input field events
-        $input.on('blur keydown', function (e) {
+        $input.on('blur keydown input', function (e) {
             if (e.type === 'blur' || (e.type === 'keydown' && e.key === 'Enter')) {
                 const newText = $input.val();
                 if (newText !== originalText) {
@@ -162,6 +176,11 @@ $(document).ready(function () {
                 } else {
                     $goalText.text(originalText);
                 }
+            } else if (e.type === 'input') {
+                // Adjust the width of the input field as the user types
+                const newText = $input.val();
+                const newTextWidth = getTextWidth(newText, font);
+                $input.width(newTextWidth + 20); // Add some padding
             }
         });
 
