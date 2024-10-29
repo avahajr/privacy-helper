@@ -96,9 +96,16 @@ $(document).ready(function () {
         $privacyGoalsList.empty(); // Clear any existing goals
 
         goals.forEach((goal, i) => {
+            let icons = ["bi-x", "bi-exclamation-triangle", "bi-check"];
+            let colors = ["text-danger", "text-warning", "text-success"];
             const goalItem = $(`
-                <li data-id="${i}" class="list-group-item d-flex justify-content-between">
-                    <div class="goal-text">${goal.goal}</div>
+                <li data-id="${i}" class="list-group-item d-flex justify-content-between align-items-center">
+
+                    <div class="d-flex align-items-center">
+                        <i class="bi ${icons[goal['rating']]} ${colors[goal['rating']]}  pe-1"></i>
+                        <div class="goal-text">${goal.goal}</div>
+                    </div>
+
                     <i class="bi bi-pencil-square" title="edit goal"></i>
                 </li>
             `);

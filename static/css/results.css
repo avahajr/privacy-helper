@@ -124,3 +124,6 @@
 .card.goal-danger {
     border: var(--bs-card-border-width) solid var(--bs-danger-border-subtle);
 }
+#privacy-goals-list {
+    margin: 1em 0
+}
