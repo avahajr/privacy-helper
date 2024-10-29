@@ -112,9 +112,14 @@ def get_goal_quotes():
     global goals
     prompter = PolicyAnalysisPrompt(selected_policy)
     extracted_quotes = get_quotes(prompter, [goal["gpt_summary"] for goal in goals])
-    prompter.find_matches([quote for quotes in extracted_quotes for quote in quotes])
+    matches = prompter.find_matches([quote for quotes in extracted_quotes for quote in quotes])
     for goal in goals:
-        goal["gpt_quotes"] = extracted_quotes.pop(0)
+        quote_pair = {"gpt_quote": extracted_quotes.pop(0), "policy_quote": matches.pop(0)}
+        if 'quotes' not in goal:
+            goal['quotes'] = [quote_pair]
+        else:
+            goal["quotes"].append(quote_pair)
+
     return jsonify(goals)
 
 @app.route("/gpt/analyze-policy/rating", methods=["GET"])

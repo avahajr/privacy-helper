@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    const themes = ["not-met", "partially-met", "completely-met"];
+    const icons = ["bi-x", "bi-exclamation-triangle-fill", "bi-check"];
+    const texts = ["Goals not met", "Goals partially met", "Goals completely met"];
+    const colors = ["danger", "warning", "success"];
+
     rerollUI();
     $("#reroll").click(function () { rerollUI()});
     function constructGoalListItem(goal) {
@@ -16,7 +21,6 @@ $(document).ready(function () {
 
     function initPlaceholders() {
         let summary_row = $("#summary-row");
-        let themes = ["not-met", "partially-met", "completely-met"];
         for (let i = 0; i < 3; i++) {
             summary_row.append(`
             <div class="col-4">
@@ -47,10 +51,7 @@ $(document).ready(function () {
     }
 
     function fillDashboardPlaceholders(count_failure, count_warning, count_success) {
-        const themes = ["not-met", "partially-met", "completely-met"];
-        const icons = ["bi-x-circle-fill", "bi-exclamation-triangle-fill", "bi-check-circle-fill"];
-        const texts = ["Goals not met", "Goals partially met", "Goals completely met"];
-
+        let icons = ["bi-x-circle-fill", "bi-exclamation-triangle-fill", "bi-check-circle-fill"];
         themes.forEach((theme, index) => {
             const goalDashboard = $(`#goals-${theme}`)
             goalDashboard.parent().find('i').removeClass('placeholder').addClass(icons[index]);
@@ -96,13 +97,11 @@ $(document).ready(function () {
         $privacyGoalsList.empty(); // Clear any existing goals
 
         goals.forEach((goal, i) => {
-            let icons = ["bi-x", "bi-exclamation-triangle", "bi-check"];
-            let colors = ["text-danger", "text-warning", "text-success"];
             const goalItem = $(`
                 <li data-id="${i}" class="list-group-item d-flex justify-content-between align-items-center">
 
                     <div class="d-flex align-items-center">
-                        <i class="bi ${icons[goal['rating']]} ${colors[goal['rating']]}  pe-1"></i>
+                        <i class="bi ${icons[goal['rating']]} text-${colors[goal['rating']]}  pe-1"></i>
                         <div class="goal-text">${goal.goal}</div>
                     </div>
 
@@ -229,7 +228,16 @@ $(document).ready(function () {
                     }
                 });
                 fillDashboardPlaceholders(count_failure, count_warning, count_success);
-                populatePrivacyGoals(data)
+                $.ajax({
+                    url: "/gpt/analyze-policy/summary", method: 'GET', success: function (data) {
+                        data.forEach((goal) => {
+                            const goalBox = $(`#goals-${themes[goal[rating]]}`)
+                            goalBox.empty();
+                            goalBox.append(constructGoalCard(goal))
+
+                        });
+                    }
+                })
             }
         });
 

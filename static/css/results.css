@@ -124,6 +124,16 @@
 .card.goal-danger {
     border: var(--bs-card-border-width) solid var(--bs-danger-border-subtle);
 }
+
+.card.goal-warning {
+    border: var(--bs-card-border-width) solid var(--bs-warning-border-subtle);
+}
+
+.card.goal-success {
+    border: var(--bs-card-border-width) solid var(--bs-success-border-subtle);
+}
+
+
 #privacy-goals-list {
     margin: 1em 0
 }
