@@ -273,6 +273,8 @@ $(document).ready(function () {
                                 goalBox.append(constructGoalCard(goal, i));
                             }
                         });
+
+                        addCitations();
                     }
                 });
             }
@@ -290,35 +292,44 @@ $(document).ready(function () {
             url: "/gpt/analyze-policy/quotes",
             method: 'GET',
             success: function (data) {
+                let citation_num = 1;
                 data.forEach((goal, goal_id) => {
                     goal.cited_summary.forEach((sentence, sentence_id) => {
+                        addCitationByCoord(citation_num++, goal_id, sentence_id)
                     })
                 });
             }
         });
     }
 
-    function addCitationByCoord(citation_num, goal_id, paragraph_id, sentence_id) {
+    function addCitationByCoord(citation_num, goal_id, sentence_id) {
         // Find the goal summary element by goal_id
         const goalSummary = $(`.goal-summary[data-goal-id="${goal_id}"]`);
 
         if (goalSummary.length) {
-            // Find the paragraph by paragraph_id within the goal summary
-            const paragraph = goalSummary.find(`p[data-p-id="${paragraph_id}"]`);
+            let currentSentenceId = 0;
 
-            if (paragraph.length) {
-                // Find the sentence by sentence_id within the paragraph
-                const sentence = paragraph.find(`span[data-s-id="${sentence_id}"]`);
+            // Iterate through all paragraphs within the goal summary
+            goalSummary.find('p').each(function () {
+                const paragraph = $(this);
 
-                if (sentence.length) {
-                    // Create a new span element with the citation number
-                    const citationSpan = $(`<span class="citation">${citation_num}</span>`);
+                // Iterate through all sentences within the paragraph
+                paragraph.find('span[data-s-id]').each(function () {
+                    if (currentSentenceId === sentence_id) {
+                        // Create a new span element with the citation number
+                        const citationSpan = $(`<span class="citation">${citation_num}</span>`);
 
-                    // Insert the citation span after the sentence span
-                    sentence.after(citationSpan);
+                        // Insert the citation span after the sentence span
+                        $(this).after(citationSpan);
+                        return false; // Exit the loop
+                    }
+                    currentSentenceId++;
+                });
+
+                if (currentSentenceId > sentence_id) {
+                    return false; // Exit the loop
                 }
-            }
+            });
         }
     }
-
 });
