@@ -107,6 +107,7 @@ def get_goal_ratings():
     for i, goal in enumerate(goals):
         goal["rating"] = goal_evaluations[i]
 
+    goals.sort(key=lambda x: x["rating"])
     return jsonify(goals)
 
 if __name__ == '__main__':

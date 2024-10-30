@@ -115,7 +115,6 @@ $(document).ready(function () {
     function populatePrivacyGoals(goals) {
         const $privacyGoalsList = $("#privacy-goals-list");
         $privacyGoalsList.empty(); // Clear any existing goals
-        goals.sort((a, b) => a.rating - b.rating);
         goals.forEach((goal, i) => {
             const goalItem = $(`
                 <li data-id="${i}" class="list-group-item d-flex justify-content-between align-items-center">
