@@ -11,26 +11,26 @@ $(document).ready(function () {
 
     function constructGoalCard(goal, goal_id) {
         const summary_paragraphs = goal.gpt_summary.split('\n');
-
+        let sentenceCounter = 0
         return $(`
-        <div class="card mb-3 card-${colors[goal.rating]}">
-            <div class="card-body">
-                <div class="goal-header-row">
-                    <i class="bi h5 ${icons[goal.rating]} text-${colors[goal.rating]} pe-2"></i>
-                    <h5 class="goal-header">${goal.goal}</h5>
-                </div>
-                <div class="goal-summary" data-goal-id="${goal_id}">
-                ${summary_paragraphs.map((paragraph, p_idx) =>
-            paragraph.trim() ? `<p data-p-id="${p_idx}">${paragraph
+<div class="card mb-3 card-${colors[goal.rating]}">
+    <div class="card-body">
+        <div class="goal-header-row">
+            <i class="bi h5 ${icons[goal.rating]} text-${colors[goal.rating]} pe-2"></i>
+            <h5 class="goal-header">${goal.goal}</h5>
+        </div>
+        <div class="goal-summary" data-goal-id="${goal_id}">
+        ${summary_paragraphs.map((paragraph) =>
+            paragraph.trim() ? `<p>${paragraph
                 .split(/(?<=[.!?])\s+/)
-                .map((sentence, s_idx) => sentence.trim() ? `<span data-s-id="${s_idx}">${sentence}</span>` : '')
+                .map((sentence) => sentence.trim() ? `<span data-s-id="${sentenceCounter++}">${sentence}</span>` : '')
                 .join(' ')
             }</p>` : ""
         ).join('')}
-                </div>
-            </div>
         </div>
-    `);
+    </div>
+</div>
+`);
     }
 
     function initPlaceholders() {
@@ -290,15 +290,35 @@ $(document).ready(function () {
             url: "/gpt/analyze-policy/quotes",
             method: 'GET',
             success: function (data) {
-                data.cited_summary.forEach(summary => {
-                    const policyTextElement = $("#selected-policy-text");
-                    const policyText = policyTextElement.html();
-                    const regex = new RegExp(`(${summary.sentence.trim()})`, 'gi');
-                    const updatedText = policyText.replace(regex, `$1<span class="quote">${summary.quote}</span>`);
-                    policyTextElement.html(updatedText);
+                data.forEach((goal, goal_id) => {
+                    goal.cited_summary.forEach((sentence, sentence_id) => {
+                    })
                 });
             }
         });
+    }
+
+    function addCitationByCoord(citation_num, goal_id, paragraph_id, sentence_id) {
+        // Find the goal summary element by goal_id
+        const goalSummary = $(`.goal-summary[data-goal-id="${goal_id}"]`);
+
+        if (goalSummary.length) {
+            // Find the paragraph by paragraph_id within the goal summary
+            const paragraph = goalSummary.find(`p[data-p-id="${paragraph_id}"]`);
+
+            if (paragraph.length) {
+                // Find the sentence by sentence_id within the paragraph
+                const sentence = paragraph.find(`span[data-s-id="${sentence_id}"]`);
+
+                if (sentence.length) {
+                    // Create a new span element with the citation number
+                    const citationSpan = $(`<span class="citation">${citation_num}</span>`);
+
+                    // Insert the citation span after the sentence span
+                    sentence.after(citationSpan);
+                }
+            }
+        }
     }
 
 });
