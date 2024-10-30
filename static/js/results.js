@@ -315,7 +315,7 @@ $(document).ready(function () {
             goalSummary.find('span[data-s-id]').each(function () {
                 if (currentSentenceId === sentence_id) {
                     // Create a new span element with the citation number
-                    const citationSpan = $(`<span class="citation"><span class="visible-citation-num">[${citation_num}]</span><span hidden class="quote-text">${policy_quote}</span></span>`);
+                    const citationSpan = $(`<span class="citation"><span class="link-primary visible-citation-num">[${citation_num}]</span><span hidden class="quote-text">${policy_quote}</span></span>`);
 
                     // Check if a citations span exists, if not create one
                     let citations = $(this).next('.citations');
@@ -324,9 +324,13 @@ $(document).ready(function () {
                         $(this).after(citations);
                     }
 
-                    // Append the citation span to the citations span
                     citations.append(citationSpan);
-                    return false; // Exit the loop
+                    // Append the citation span to the citations span
+                    citationSpan.click( function () {
+                        const quoteText = $(this).find(".quote-text").text();
+                        highlightText(quoteText);
+                    })
+                    return false;
                 }
                 currentSentenceId++;
             });
