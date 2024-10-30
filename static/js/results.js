@@ -9,16 +9,25 @@ $(document).ready(function () {
         rerollUI()
     });
 
-    function constructGoalCard(goal) {
+    function constructGoalCard(goal, goal_id) {
         const summary_paragraphs = goal.gpt_summary.split('\n');
+
         return $(`
-            <div class="card mb-3 card-${colors[goal.rating]}">
-                <div class="card-body">
+        <div class="card mb-3 card-${colors[goal.rating]}">
+            <div class="card-body">
                 <div class="goal-header-row">
                     <i class="bi h5 ${icons[goal.rating]} text-${colors[goal.rating]} pe-2"></i>
                     <h5 class="goal-header">${goal.goal}</h5>
                 </div>
-                ${summary_paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')}
+                <div class="goal-summary" data-goal-id="${goal_id}">
+                ${summary_paragraphs.map((paragraph, p_idx) =>
+            paragraph.trim() ? `<p data-p-id="${p_idx}">${paragraph
+                .split(/(?<=[.!?])\s+/)
+                .map((sentence, s_idx) => sentence.trim() ? `<span data-s-id="${s_idx}">${sentence}</span>` : '')
+                .join(' ')
+            }</p>` : ""
+        ).join('')}
+                </div>
             </div>
         </div>
     `);
@@ -258,10 +267,10 @@ $(document).ready(function () {
                             }
                         });
 
-                        data.forEach((goal) => {
+                        data.forEach((goal, i) => {
                             const goalBox = $(`#goals-${themeMap[goal.rating]}`);
                             if (goalBox.length) {
-                                goalBox.append(constructGoalCard(goal));
+                                goalBox.append(constructGoalCard(goal, i));
                             }
                         });
                     }
@@ -274,6 +283,22 @@ $(document).ready(function () {
             highlightText(quoteText);
         });
 
+    }
+
+    function addCitations() {
+        $.ajax({
+            url: "/gpt/analyze-policy/quotes",
+            method: 'GET',
+            success: function (data) {
+                data.cited_summary.forEach(summary => {
+                    const policyTextElement = $("#selected-policy-text");
+                    const policyText = policyTextElement.html();
+                    const regex = new RegExp(`(${summary.sentence.trim()})`, 'gi');
+                    const updatedText = policyText.replace(regex, `$1<span class="quote">${summary.quote}</span>`);
+                    policyTextElement.html(updatedText);
+                });
+            }
+        });
     }
 
 });
