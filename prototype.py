@@ -21,11 +21,10 @@ def split_into_sentences(text):
     return sentences
 
 
-def split_quotes_by_ellipses(quote_list):
+def split_quote_by_ellipses(quote):
     split_quotes = []
-    for quote in quote_list:
-        parts = quote.split('...')
-        split_quotes.extend(part.strip() for part in parts if part.strip())
+    parts = quote.split('...')
+    split_quotes.extend(part.strip() for part in parts if part.strip())
     return split_quotes
 
 
@@ -63,7 +62,7 @@ class PolicyReader:
         print("Quote analysis:")
         print('=' * 100)
         policy_sentences = split_into_sentences(self.policy.policy_text)
-        split_quotes = split_quotes_by_ellipses(quotes)
+        split_quotes = split_quote_by_ellipses(quotes)
         number_of_matches = 0
 
         for j, quote in enumerate(split_quotes, start=1):

@@ -1,21 +1,26 @@
 $(document).ready(function () {
     const themes = ["not-met", "partially-met", "completely-met"];
-    const icons = ["bi-x", "bi-exclamation-triangle-fill", "bi-check"];
+    const icons = ["bi-x", "bi-exclamation-triangle", "bi-check-lg"];
     const texts = ["Goals not met", "Goals partially met", "Goals completely met"];
     const colors = ["danger", "warning", "success"];
 
-    rerollUI();
-    $("#reroll").click(function () { rerollUI()});
-    function constructGoalListItem(goal) {
+    rerollUI(true);
+    $("#reroll").click(function () {
+        rerollUI()
+    });
+
+    function constructGoalCard(goal) {
         const summary_paragraphs = goal.gpt_summary.split('\n');
         return $(`
-        <li class="goal-container list-group-item">
-            <div>
-                <span class="goal-achievement-level">${goal.rating}</span>
-                <h4 class="goal-text">${goal.goal}</h4>
+            <div class="card mb-3 card-${colors[goal.rating]}">
+                <div class="card-body">
+                <div class="goal-header-row">
+                    <i class="bi h5 ${icons[goal.rating]} text-${colors[goal.rating]} pe-2"></i>
+                    <h5 class="goal-header">${goal.goal}</h5>
+                </div>
                 ${summary_paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')}
             </div>
-        </li>
+        </div>
     `);
     }
 
@@ -27,7 +32,7 @@ $(document).ready(function () {
                 <div class="card card-${themes[i]} w-100">
                     <div class="card-body">
                         <i class="bi placeholder w-25"></i>
-                        <div id='goals-${themes[i]}' class="h3">
+                        <div id='goal-dashboard-${themes[i]}' class="h3">
                             <div class="placeholder-glow">
                                 <span class="placeholder col-12 w-75"></span>
                             </div>
@@ -40,7 +45,7 @@ $(document).ready(function () {
             </div>`);
 
         }
-        $("#percent-compliance").html(`
+        $("#compliance").html(`
         <div class="placeholder-glow">
             <span class="placeholder col-1"></span>
         </div>
@@ -53,13 +58,26 @@ $(document).ready(function () {
     function fillDashboardPlaceholders(count_failure, count_warning, count_success) {
         let icons = ["bi-x-circle-fill", "bi-exclamation-triangle-fill", "bi-check-circle-fill"];
         themes.forEach((theme, index) => {
-            const goalDashboard = $(`#goals-${theme}`)
+            const goalDashboard = $(`#goal-dashboard-${theme}`)
             goalDashboard.parent().find('i').removeClass('placeholder').addClass(icons[index]);
             goalDashboard.parent().find('.placeholder-glow').remove();
             goalDashboard.parent().append(`<div>${texts[index]}</div>`);
         });
 
-        let percent_compliance = Math.round((count_success / (count_warning + count_failure + count_success)) * 100);
+        const compliance = `${count_success} of ${count_failure + count_warning + count_success}`;
+        const reaction = getReaction(count_success, count_warning, count_failure);
+
+        $("#compliance").html(`<strong>${reaction}</strong> <div><span>${compliance}</span> of your goals were completely met.</div>`);
+
+        $("#goal-dashboard-completely-met").empty().append($(`<div class='bold h3'>${count_success}</div>`));
+        $("#goal-dashboard-partially-met").empty().append($(`<div class='bold h3'>${count_warning}</div>`));
+        $("#goal-dashboard-not-met").empty().append($(`<div class='bold h3'>${count_failure}</div>`));
+
+        $("#compliance span").text(`${compliance}`);
+    }
+
+    function getReaction(count_success, count_warning, count_failure) {
+        const percent_compliance = Math.round((count_success / (count_success + count_warning + count_failure)) * 100);
         let reaction = "Ruh roh!"
 
         if (percent_compliance >= 50 && percent_compliance < 75) {
@@ -67,14 +85,7 @@ $(document).ready(function () {
         } else if (percent_compliance >= 75) {
             reaction = "Nice!"
         }
-
-        $("#percent-compliance").html(`<strong>${reaction}</strong> <div><span>${percent_compliance}</span>% of your goals were completely met.</div>`);
-
-        $("#goals-completely-met").empty().append($(`<div class='bold h3'>${count_success}</div>`));
-        $("#goals-partially-met").empty().append($(`<div class='bold h3'>${count_warning}</div>`));
-        $("#goals-not-met").empty().append($(`<div class='bold h3'>${count_failure}</div>`));
-
-        $("#percent-compliance span").text(`${percent_compliance}`);
+        return reaction
     }
 
     // Function to highlight text in the policy and scroll to it
@@ -95,13 +106,13 @@ $(document).ready(function () {
     function populatePrivacyGoals(goals) {
         const $privacyGoalsList = $("#privacy-goals-list");
         $privacyGoalsList.empty(); // Clear any existing goals
-
+        goals.sort((a, b) => a.rating - b.rating);
         goals.forEach((goal, i) => {
             const goalItem = $(`
                 <li data-id="${i}" class="list-group-item d-flex justify-content-between align-items-center">
 
                     <div class="d-flex align-items-center">
-                        <i class="bi ${icons[goal['rating']]} text-${colors[goal['rating']]}  pe-1"></i>
+                        <i class="bi ${icons[goal['rating']]} text-${colors[goal['rating']]} pe-2"></i>
                         <div class="goal-text">${goal.goal}</div>
                     </div>
 
@@ -110,6 +121,7 @@ $(document).ready(function () {
             `);
             $privacyGoalsList.append(goalItem);
         });
+
         $privacyGoalsList.append($(`<li class="list-group-item input-group d-flex justify-content-between">
             <input aria-label="enter new goal" id="new-goal" class="form-control" type="text"
                    placeholder="type new goal here...">
@@ -185,59 +197,75 @@ $(document).ready(function () {
 
     });
 
-    function rerollUI() {
+    function rerollUI(load_policy = false) {
         $("#summary-row").empty();
         initPlaceholders();
-        $.ajax({
-            url: "/goals", method: 'GET', success: function (data) {
-                console.log(data);
-                populatePrivacyGoals(data);
-            },
-        });
-        $.ajax({
-            url: "/policy", method: 'GET', success: function (data) {
-                console.log(data);
-                $("#selected-policy-text").text(data.text);
-            },
-        });
 
-        let successes = $("<ul class='list-group'></ul>");
-        let warnings = $("<ul class='list-group'></ul>");
-        let failures = $("<ul class='list-group'></ul>");
+        if (load_policy) {
+            $.ajax({
+                url: "/policy", method: 'GET', success: function (data) {
+                    console.log(data);
+                    $("#selected-policy-text").text(data.text);
+                },
+            });
+        }
 
         $.ajax({
-            url: "/gpt/analyze-policy/rating", method: 'GET', success: function (data) {
+            url: "/gpt/analyze-policy/rating",
+            method: 'GET',
+            success: function (data) {
                 console.log(data);
-                let count_success = 0;
-                let count_warning = 0;
-                let count_failure = 0;
+
+                const goalCounts = {"not-met": 0, "partially-met": 0, "completely-met": 0};
+
                 data.forEach((goal) => {
                     switch (goal.rating) {
                         case 0:
-                            count_failure++;
-                            failures.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            goalCounts["not-met"]++;
                             break;
                         case 1:
-                            count_warning++;
-                            warnings.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            goalCounts["partially-met"]++;
                             break;
                         case 2:
-                            count_success++;
-                            successes.append(`<li class="list-group-item">${goal.goal}</li>`);
+                            goalCounts["completely-met"]++;
                             break;
                     }
                 });
-                fillDashboardPlaceholders(count_failure, count_warning, count_success);
-                $.ajax({
-                    url: "/gpt/analyze-policy/summary", method: 'GET', success: function (data) {
-                        data.forEach((goal) => {
-                            const goalBox = $(`#goals-${themes[goal[rating]]}`)
-                            goalBox.empty();
-                            goalBox.append(constructGoalCard(goal))
 
+                fillDashboardPlaceholders(goalCounts["not-met"], goalCounts['partially-met'], goalCounts['completely-met']);
+                populatePrivacyGoals(data);
+                $.ajax({
+                    url: "/goals", method: 'GET', success: function (data) {
+                        console.log(data);
+                        populatePrivacyGoals(data);
+                    },
+                });
+                $.ajax({
+                    url: "/gpt/analyze-policy/summary",
+                    method: 'GET',
+                    success: function (data) {
+                        const resultsSpace = $("#results-space");
+                        resultsSpace.empty();
+
+                        const themes = ["not-met", "partially-met", "completely-met"];
+                        const themeMap = {0: "not-met", 1: "partially-met", 2: "completely-met"};
+
+                        themes.forEach((theme, index) => {
+                            if (goalCounts[themeMap[index]] > 0) {
+                                resultsSpace.append(`<div id="goals-${theme}">
+                                                        <div class="h3 mb-3">${texts[index]}</div>
+                                                     </div>`);
+                            }
+                        });
+
+                        data.forEach((goal) => {
+                            const goalBox = $(`#goals-${themeMap[goal.rating]}`);
+                            if (goalBox.length) {
+                                goalBox.append(constructGoalCard(goal));
+                            }
                         });
                     }
-                })
+                });
             }
         });
 

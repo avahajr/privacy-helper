@@ -33,50 +33,17 @@
                 <button id="reroll" class="btn btn-sm btn-outline-dark">Reroll analysis</button>
             </div>
             <div id='summary-row' class="row"></div>
-            <div id="percent-compliance"><span>0</span>% of your goals were completely met.</div>
+            <div id="compliance"><span>0</span> of your goals were completely met.</div>
 
             <ul id="privacy-goals-list" class="list-group"></ul>
 
         </div>
-        <div id="goals-not-met"><h3>Unmet Goals</h3>
-            <div class="card goal-danger">
-                <div class="card-body">
-                    <div class="goal-header-row">
-                        <i class="bi h5 bi-x text-danger"></i>
-                        <h5 class="goal-header">Don't sell my data</h5>
-                    </div>
-                    <p>In today's digital age, privacy has become a paramount concern for individuals and organizations
-                        alike. The increasing amount of personal data being collected and processed necessitates
-                        stringent
-                        measures to protect this information from misuse and unauthorized access.</p>
-                    <p>Privacy policies play a crucial role in outlining how organizations handle personal data. These
-                        policies provide transparency and build trust with users by clearly stating the types of data
-                        collected, the purposes for which it is used, and the measures taken to safeguard it.</p>
-                    <p>However, merely having a privacy policy is not enough. Organizations must also ensure that they
-                        adhere to the principles outlined in their policies. This includes implementing robust security
-                        measures, regularly reviewing and updating policies, and providing training to employees on data
-                        protection practices.</p>
-                    <p>Furthermore, individuals should be proactive in understanding their privacy rights and the
-                        policies
-                        of the organizations they interact with. By being informed, they can make better decisions about
-                        sharing their personal information and take steps to protect their privacy.</p>
-                    <p>Ultimately, the goal is to create a digital environment where privacy is respected and protected,
-                        fostering trust and confidence in the use of technology and digital services.</p>
-                </div>
-            </div>
+        <div id="results-space">
         </div>
 
     </div>
 
 </div>
 
-<ul class="list-group" id="goal-list">
-</ul>
-</div>
-<div class="row">
-    <div class="col-6"></div>
-    <div class="col-6">
-    </div>
-
-    <script src="{{url_for('static', filename='js/results.js')}}"></script>
-    {% endblock %}
+<script src="{{url_for('static', filename='js/results.js')}}"></script>
+{% endblock %}

@@ -133,7 +133,12 @@
     border: var(--bs-card-border-width) solid var(--bs-success-border-subtle);
 }
 
+#goals-not-met,
+#goals-partially-met,
+#goals-completely-met {
+    margin-bottom: 1em;
+}
 
 #privacy-goals-list {
-    margin: 1em 0
+    margin: 2em 0
 }

@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from privacy_policy import PrivacyPolicy
-from gpt_prompt import GoalSuggestingPrompt, PolicyAnalysisPrompt, get_summaries, get_quotes, link_outputs, get_rating
+from gpt_prompt import GoalSuggestingPrompt, PolicyAnalysisPrompt, get_summaries, get_quotes, get_rating
 
 app = Flask(__name__, template_folder='templates')
 selected_policy = "Apple"
@@ -79,25 +79,6 @@ def suggest_goals():
     return jsonify(goals)
 
 
-@app.route("/gpt/analyze-policy", methods=["GET"])
-def analyze_policy():
-    global goals
-    prompter = PolicyAnalysisPrompt(selected_policy)
-
-    summary_responses = get_summaries(prompter, goals)
-    extracted_quotes = get_quotes(prompter, summary_responses)
-    linked_outputs = link_outputs(prompter, goals, summary_responses, extracted_quotes)
-    goal_evaluations = get_rating(prompter, linked_outputs)
-
-    for goal_info, evaluation in zip(linked_outputs, goal_evaluations):
-        goal_info["rating"] = evaluation
-
-    goals_by_achievement = [[], [], []]
-    for goal_info in linked_outputs:
-        goals_by_achievement[goal_info["rating"]].append(goal_info)
-
-    return jsonify(goals_by_achievement)
-
 @app.route("/gpt/analyze-policy/summary", methods=["GET"])
 def get_goal_summaries():
     global goals
@@ -111,15 +92,11 @@ def get_goal_summaries():
 def get_goal_quotes():
     global goals
     prompter = PolicyAnalysisPrompt(selected_policy)
-    extracted_quotes = get_quotes(prompter, [goal["gpt_summary"] for goal in goals])
-    matches = prompter.find_matches([quote for quotes in extracted_quotes for quote in quotes])
+    summaries_by_sentence_to_found_quotes = get_quotes(prompter, [goal["gpt_summary"] for goal in goals])
+    print("="*100)
+    print(summaries_by_sentence_to_found_quotes)
     for goal in goals:
-        quote_pair = {"gpt_quote": extracted_quotes.pop(0), "policy_quote": matches.pop(0)}
-        if 'quotes' not in goal:
-            goal['quotes'] = [quote_pair]
-        else:
-            goal["quotes"].append(quote_pair)
-
+        goal["cited_summary"] = summaries_by_sentence_to_found_quotes.pop(0)
     return jsonify(goals)
 
 @app.route("/gpt/analyze-policy/rating", methods=["GET"])
