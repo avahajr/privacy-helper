@@ -305,31 +305,30 @@ $(document).ready(function () {
 
     function addCitationByCoord(citation_num, policy_quote, goal_id, sentence_id) {
         // Find the goal summary element by goal_id
+        console.log("Adding citation", citation_num, policy_quote, goal_id, sentence_id);
         const goalSummary = $(`.goal-summary[data-goal-id="${goal_id}"]`);
 
         if (goalSummary.length) {
             let currentSentenceId = 0;
 
-            // Iterate through all paragraphs within the goal summary
-            goalSummary.find('p').each(function () {
-                const paragraph = $(this);
+            // Iterate through all sentences within the goal summary
+            goalSummary.find('span[data-s-id]').each(function () {
+                if (currentSentenceId === sentence_id) {
+                    // Create a new span element with the citation number
+                    const citationSpan = $(`<span class="citation"><span class="visible-citation-num">[${citation_num}]</span><span hidden class="quote-text">${policy_quote}</span></span>`);
 
-                // Iterate through all sentences within the paragraph
-                paragraph.find('span[data-s-id]').each(function () {
-                    if (currentSentenceId === sentence_id + 1) {
-                        // Create a new span element with the citation number
-                        const citationSpan = $(`<span class="citation"><span class="visible-citation-num">${citation_num}</span><span hidden class="quote-text">${policy_quote}</span></span>`);
-
-                        // Insert the citation span before the next sentence span
-                        $(this).before(citationSpan);
-                        return false; // Exit the loop
+                    // Check if a citations span exists, if not create one
+                    let citations = $(this).next('.citations');
+                    if (!citations.length) {
+                        citations = $('<span class="citations"></span>');
+                        $(this).after(citations);
                     }
-                    currentSentenceId++;
-                });
 
-                if (currentSentenceId > sentence_id + 1) {
+                    // Append the citation span to the citations span
+                    citations.append(citationSpan);
                     return false; // Exit the loop
                 }
+                currentSentenceId++;
             });
         }
     }

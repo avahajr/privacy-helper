@@ -142,3 +142,9 @@
 #privacy-goals-list {
     margin: 2em 0
 }
+
+.visible-citation-num {
+    font-size: .7em;
+    vertical-align: top;
+    cursor: pointer;
+}
