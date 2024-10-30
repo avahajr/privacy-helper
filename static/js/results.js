@@ -294,15 +294,17 @@ $(document).ready(function () {
             success: function (data) {
                 let citation_num = 1;
                 data.forEach((goal, goal_id) => {
-                    goal.cited_summary.forEach((sentence, sentence_id) => {
-                        addCitationByCoord(citation_num++, goal_id, sentence_id)
+                    goal.cited_summary.forEach((pair, sentence_id) => {
+                        pair.quotes.forEach((quote) => {
+                            addCitationByCoord(citation_num++, quote.policy_quote, goal_id, sentence_id)
+                        })
                     })
                 });
             }
         });
     }
 
-    function addCitationByCoord(citation_num, goal_id, sentence_id) {
+    function addCitationByCoord(citation_num, policy_quote, goal_id, sentence_id) {
         // Find the goal summary element by goal_id
         const goalSummary = $(`.goal-summary[data-goal-id="${goal_id}"]`);
 
@@ -315,18 +317,18 @@ $(document).ready(function () {
 
                 // Iterate through all sentences within the paragraph
                 paragraph.find('span[data-s-id]').each(function () {
-                    if (currentSentenceId === sentence_id) {
+                    if (currentSentenceId === sentence_id + 1) {
                         // Create a new span element with the citation number
-                        const citationSpan = $(`<span class="citation">${citation_num}</span>`);
+                        const citationSpan = $(`<span class="citation"><span class="visible-citation-num">${citation_num}</span><span hidden class="quote-text">${policy_quote}</span></span>`);
 
-                        // Insert the citation span after the sentence span
-                        $(this).after(citationSpan);
+                        // Insert the citation span before the next sentence span
+                        $(this).before(citationSpan);
                         return false; // Exit the loop
                     }
                     currentSentenceId++;
                 });
 
-                if (currentSentenceId > sentence_id) {
+                if (currentSentenceId > sentence_id + 1) {
                     return false; // Exit the loop
                 }
             });

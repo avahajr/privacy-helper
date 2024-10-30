@@ -82,7 +82,6 @@ class GoalSuggestingPrompt(GPTPrompt):
             for new_goal in response.split("\n"):
                 if new_goal == "":
                     continue
-                print(new_goal)
                 goal, explanation = tuple(new_goal.split(":"))
                 new_goals.append({"goal": goal, "explanation": explanation.strip()})
         return new_goals
@@ -195,11 +194,6 @@ def get_summaries(prompter, goals):
 
 def get_quotes(prompter, summary_responses) -> list[CitedSummary]:
     quote_prompts = prompter.cite_sources(summary_responses)
-
-    responses = prompter.prompt_gpt(quote_prompts)
-    for response in responses:
-        print(type(response))
-        print(type(json.loads(response)))
 
     summaries_by_sentences_to_quotes = [json.loads(response) for response in prompter.prompt_gpt(quote_prompts)]
     summaries_by_sentences_to_matched_quotes = prompter.find_matches(summaries_by_sentences_to_quotes)

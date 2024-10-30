@@ -93,8 +93,7 @@ def get_goal_quotes():
     global goals
     prompter = PolicyAnalysisPrompt(selected_policy)
     summaries_by_sentence_to_found_quotes = get_quotes(prompter, [goal["gpt_summary"] for goal in goals])
-    print("="*100)
-    print(summaries_by_sentence_to_found_quotes)
+
     for goal in goals:
         goal["cited_summary"] = summaries_by_sentence_to_found_quotes.pop(0)
     return jsonify(goals)
