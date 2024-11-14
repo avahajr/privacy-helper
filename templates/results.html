@@ -1,48 +1,46 @@
-{% extends "layout.html" %}
-
-{% block content %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/results.css')}}">
+{% extends "layout.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{url_for('static', filename='css/results.css')}}"
+/>
 <div class="row">
-    <div class="col-5">
-        <a class="link-dark" href="..">
-            <i class="bi bi-arrow-left"></i>
-            Back to policy selection
-        </a>
-        <div class="h-10"></div>
-        <br/>
-        <div id='selected-policy' class="card mb-3">
-            <div class="card-header dropdown">
-                <div>
-                    {{selected_policy|lower}}.txt
-                </div>
-
-            </div>
-            <div class="card-body">
-                <h5 id="selected-policy-title" class="card-title">{{selected_policy}}'s Privacy Policy</h5>
-                <p id='selected-policy-text' class="card-text"></p>
-            </div>
-
-        </div>
-
+  <div class="col-5">
+    <a class="link-dark" href="..">
+      <i class="bi bi-arrow-left"></i>
+      Back to policy selection
+    </a>
+    <div class="h-10"></div>
+    <br />
+    <div id="selected-policy" class="card mb-3">
+      <div class="card-header dropdown">
+        <div>{{selected_policy|lower}}.txt</div>
+      </div>
+      <div class="card-body">
+        <h5 id="selected-policy-title" class="card-title">
+          {{selected_policy}}'s Privacy Policy
+        </h5>
+        <p id="selected-policy-text" class="card-text"></p>
+      </div>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6">
-        <div id="breakdown">
-            <div class="goal-breakdown-header-row">
-                <h3>Goal Breakdown</h3>
-                <button id="reroll" class="btn btn-sm btn-outline-dark">Reroll analysis</button>
-            </div>
-            <div id='summary-row' class="row"></div>
-            <div id="compliance"><span>0</span> of your goals were completely met.</div>
+  </div>
+  <div class="col-1"></div>
+  <div class="col-6">
+    <div id="breakdown">
+      <div class="goal-breakdown-header-row">
+        <h3>Goal Breakdown</h3>
+        <button id="reroll" class="btn btn-sm btn-outline-dark">
+          Reroll analysis
+        </button>
+      </div>
+      <div id="summary-row" class="row"></div>
+      <div id="compliance">
+        <span>0</span> of your goals were completely met.
+      </div>
 
-            <ul id="privacy-goals-list" class="list-group"></ul>
-
-        </div>
-        <div id="results-space">
-        </div>
-
+      <ul id="privacy-goals-list" class="list-group"></ul>
     </div>
-
+    <div id="results-space"></div>
+  </div>
 </div>
 
 <script src="{{url_for('static', filename='js/results.js')}}"></script>
