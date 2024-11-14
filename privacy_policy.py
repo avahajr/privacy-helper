@@ -5,7 +5,7 @@ class PrivacyPolicy:
     """Processes the privacy policy of a company."""
 
     def __init__(self, company_name):
-        self.path = os.path.join(os.getcwd(), "static", "policies", company_name.lower() + ".txt")
+        self.path = os.path.join(os.getcwd(), "static", "policies", company_name.lower() + ".md")
         self.text = self.get_policy_text()
 
     def get_policy_text(self):
