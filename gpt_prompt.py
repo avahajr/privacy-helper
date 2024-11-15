@@ -32,7 +32,7 @@ class GPTPrompt:
         self.model = model
         self.client = OpenAI(api_key=SECRET_KEY)
 
-    def prompt_gpt(self, prompts: list[dict[str, str]]) -> list[str]:
+    def prompt_gpt(self, prompts: list[dict[str, str]], ) -> list[str]:
         system_message = None
         assistant_message = None
         requests = []
@@ -142,9 +142,12 @@ class PolicyAnalysisPrompt(GPTPrompt):
             prompt = {"role": "user",
                       "content": f"Using only the provided privacy policy, find relevant quotes to support the following summary,"
                                  f"represented as a list of sentences:\n{sentences}\n Return a JSON array, each element mapping a sentence to a list of quotes "
-                                 f"in the policy (not all sentences have to have a citation). Make sure the JSON is pure so that I can call json.loads() on the string response without any cleaning. "
+                                 f"in the policy (not all sentences have to have a citation). "
+                                 f"Ignore markdown formatting in the sentence: return the quote part in plain text."
+                                 f"Make sure the JSON is pure so that I can call json.loads() on the string response without any cleaning. "
                                  f"If there are multiple quotes, to support a single sentence, then the quotes property will have two elements in the array.\nSample output:\n"
                                  "[{sentence:\"The policy states that <company_name> does not collect data on users\", quotes:[\"<quote>\"]}, {summary: <summary_sentence>, quotes: [<quote1>,<quote2>]}]"
+
                       }
             prompts.append(prompt)
 

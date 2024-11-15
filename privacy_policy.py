@@ -9,6 +9,20 @@ class PrivacyPolicy:
         self.text = self.get_policy_text()
 
     def get_policy_text(self):
+
         with open(self.path) as f:
-            policy_text = " ".join(line.rstrip() for line in f if line != "\n")
-        return policy_text
+            lines = f.readlines()
+
+        policy_text = []
+        empty_line_count = 0
+
+        for line in lines:
+            if line.strip() == "":
+                empty_line_count += 1
+            else:
+                if empty_line_count >= 2:
+                    policy_text.append("")
+                policy_text.append(line.rstrip())
+                empty_line_count = 0
+
+        return "\n".join(policy_text)

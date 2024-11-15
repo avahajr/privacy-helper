@@ -129,24 +129,56 @@ $(document).ready(function () {
     return reaction;
   }
 
-  // Function to highlight text in the policy and scroll to it
-  function highlightText(quoteText) {
-    const policyTextElement = $("#selected-policy-text");
-    const policyText = policyTextElement.text();
-    const regex = new RegExp(`(${quoteText.trim()})`, "gi");
-    const highlightedText = policyText.replace(
-      regex,
-      '<span class="highlight">$1</span>',
-    );
-    policyTextElement.html(highlightedText);
+  function findTextInHtml(searchText) {
+    // Remove Markdown formatting symbols from the search text
+    const cleanSearchText = searchText
+      .replace(/(^|\s)[#]+ /g, "")
+      .replace(/(^|\s)[-]+ /g, "")
+      .replace(/[_*~`]/g, "")
+      .trim();
+    console.log("searching for:", cleanSearchText);
+    const regex = new RegExp(cleanSearchText, "gi");
+    let found = false;
+    const container = document.getElementById("selected-policy-text");
 
-    // Scroll to the highlighted text
-    const highlightedElement = policyTextElement.find(".highlight").first();
-    if (highlightedElement.length) {
-      policyTextElement.scrollTop(
-        highlightedElement.position().top + policyTextElement.scrollTop(),
-      );
+    function traverse(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.nodeValue;
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        let textContent = "";
+        node.childNodes.forEach((child) => {
+          textContent += traverse(child);
+        });
+
+        if (regex.test(textContent)) {
+          found = true;
+          highlightText(node, cleanSearchText);
+        }
+
+        return textContent;
+      }
+
+      return "";
     }
+
+    function highlightText(node, searchText) {
+      const innerHTML = node.innerHTML;
+      const highlightedHTML = innerHTML.replace(
+        regex,
+        (match) => `<span class="highlight">${match}</span>`,
+      );
+      node.innerHTML = highlightedHTML;
+      const highlightedNode = node.querySelector('.highlight');
+      if (highlightedNode) {
+        highlightedNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    traverse(container);
+    console.log("found?", found);
+    return found;
   }
 
   function populatePrivacyGoals(goals) {
@@ -254,8 +286,24 @@ $(document).ready(function () {
         url: "/policy",
         method: "GET",
         success: function (data) {
-          console.log(data);
-          $("#selected-policy-text").text(data.text);
+          // console.log(data);
+          let selectedPolicy = data["policy"];
+          $("#dropdown-menu").text(`${selectedPolicy.toLowerCase()}.md`);
+          $.ajax({
+            url: `static/policies/${selectedPolicy.toLowerCase()}.md`,
+            method: "GET",
+            success: function (data) {
+              $("#selected-policy-text").empty().append(marked.parse(data));
+            },
+            error: function () {
+              $("#selected-policy-text").text("Error loading policy content.");
+            },
+          });
+          $("#selected-policy").show();
+        },
+        error: function () {
+          console.log("Error loading policy.");
+          return {};
         },
       });
     }
@@ -337,7 +385,8 @@ $(document).ready(function () {
 
     $(".quote-holder, .quote-holder .blockquote").on("click", function () {
       const quoteText = $(this).find("p").text();
-      highlightText(quoteText);
+      const found = findTextInHtml(quoteText);
+      console.log(found);
     });
   }
 
@@ -401,7 +450,7 @@ $(document).ready(function () {
           // Append the citation span to the citations span
           citationSpan.click(function () {
             const quoteText = $(this).find(".quote-text").text();
-            highlightText(quoteText);
+            findTextInHtml(quoteText);
           });
           return false;
         }
